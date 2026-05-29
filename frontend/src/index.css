@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --color-bg:           #edecea;
+  --color-bg-subtle:    #e5e2de;
+  --color-surface:      #ffffff;
+  --color-surface-hover:#f9f8f7;
+  --color-border:       #e2e0db;
+  --color-border-strong:#c9c5be;
+
+  /* Text */
+  --color-fg:    #1c1917;
+  --color-muted: #78716c;
+
+  /* Accent — primary interactive colour (indigo) */
+  --color-accent:       #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-accent-bg:    #eef2ff;
+  --color-accent-text:  #3730a3;
+
+  /* Status */
+  --color-issued:       #2563eb;
+  --color-issued-bg:    #eff6ff;
+  --color-draft:        #71717a;
+  --color-draft-bg:     #f4f4f5;
+  --color-cancelled:    #dc2626;
+  --color-cancelled-bg: #fef2f2;
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+#root { min-height: 100vh; }
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1cfc9; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #b8b4ac; }
+
+/* ─── Focus ring ────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ─── Print layout ──────────────────────────────────────────── */
+@media print {
+  aside, header, [data-print-hide] { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  main { padding: 0 !important; }
+  [data-print-show] { display: block !important; }
+  .print\:hidden { display: none !important; }
+  .print\:block  { display: block  !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
