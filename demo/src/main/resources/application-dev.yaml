@@ -6,6 +6,12 @@ spring:
   jpa:
     show-sql: true
 
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+
 logging:
   level:
     com.siddhant.demo: DEBUG

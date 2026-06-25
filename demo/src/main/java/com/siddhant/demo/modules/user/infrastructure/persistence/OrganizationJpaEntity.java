@@ -13,11 +13,8 @@ import lombok.Setter;
 @Table(name = "organizations")
 public class OrganizationJpaEntity extends AuditableEntity {
 
-	@Column(name = "tenant_id", nullable = false, length = 36, updatable = false)
-	private String tenantId;
-
-	@Column(nullable = false, length = 30)
-	private String code;
+	@Column(name = "user_id", nullable = false, length = 36)
+	private String userId;
 
 	@Column(name = "legal_name", nullable = false, length = 300)
 	private String legalName;
@@ -41,5 +38,5 @@ public class OrganizationJpaEntity extends AuditableEntity {
 	private String phone;
 
 	@Column(name = "is_default", nullable = false)
-	private boolean defaultOrganization;
+	private boolean defaultOrganization = true;
 }

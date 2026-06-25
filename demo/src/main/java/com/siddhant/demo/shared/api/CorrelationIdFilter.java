@@ -1,5 +1,6 @@
 package com.siddhant.demo.shared.api;
 
+import com.siddhant.demo.shared.constant.ApiConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,22 +18,19 @@ import java.util.UUID;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorrelationIdFilter extends OncePerRequestFilter {
 
-	public static final String MDC_KEY = "correlationId";
-	public static final String HEADER = "X-Correlation-Id";
-
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String correlationId = request.getHeader(HEADER);
+		String correlationId = request.getHeader(ApiConstants.HEADER_CORRELATION_ID);
 		if (correlationId == null || correlationId.isBlank()) {
 			correlationId = UUID.randomUUID().toString();
 		}
-		MDC.put(MDC_KEY, correlationId);
-		response.setHeader(HEADER, correlationId);
+		MDC.put(ApiConstants.MDC_CORRELATION_ID, correlationId);
+		response.setHeader(ApiConstants.HEADER_CORRELATION_ID, correlationId);
 		try {
 			filterChain.doFilter(request, response);
 		} finally {
-			MDC.remove(MDC_KEY);
+			MDC.remove(ApiConstants.MDC_CORRELATION_ID);
 		}
 	}
 }

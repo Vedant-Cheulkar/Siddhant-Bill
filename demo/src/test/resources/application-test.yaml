@@ -16,3 +16,11 @@ spring:
 app:
   jwt:
     secret: test-secret-key-minimum-32-characters-long
+  pdf:
+    storage-path: ${java.io.tmpdir}/billing-test-documents
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

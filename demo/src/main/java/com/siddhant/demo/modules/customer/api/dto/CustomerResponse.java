@@ -6,14 +6,11 @@ public record CustomerResponse(
 		String id,
 		String code,
 		String name,
-		String gstin,
-		String pan,
+		String mobile,
 		String email,
-		String phone,
-		String billingStateCode,
-		int creditDays,
+		String address,
+		String gstNumber,
 		boolean active,
-		String notes,
 		Instant createdAt,
 		Instant updatedAt
 ) {

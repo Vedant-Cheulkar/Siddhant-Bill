@@ -1,0 +1,6 @@
+# Production: disable interactive API docs (enable only in staging if needed)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

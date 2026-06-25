@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 public class UserPrincipal implements UserDetails {
@@ -15,8 +16,14 @@ public class UserPrincipal implements UserDetails {
 	private final String id;
 	private final String email;
 	private final String passwordHash;
-	private final String tenantId;
 	private final String organizationId;
+
+	/**
+	 * Transitional: equals organizationId until tenant tables are removed in Step 2.
+	 * Other services call getTenantId() — keeping it avoids changing all of them now.
+	 */
+	private final String tenantId;
+
 	private final Set<String> roles;
 	private final Set<String> permissions;
 	private final boolean enabled;
@@ -25,7 +32,6 @@ public class UserPrincipal implements UserDetails {
 			String id,
 			String email,
 			String passwordHash,
-			String tenantId,
 			String organizationId,
 			Set<String> roles,
 			Set<String> permissions,
@@ -34,8 +40,8 @@ public class UserPrincipal implements UserDetails {
 		this.id = id;
 		this.email = email;
 		this.passwordHash = passwordHash;
-		this.tenantId = tenantId;
 		this.organizationId = organizationId;
+		this.tenantId = organizationId;
 		this.roles = roles;
 		this.permissions = permissions;
 		this.enabled = enabled;
@@ -43,11 +49,10 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<GrantedAuthority> authorities = permissions.stream()
-				.map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toSet());
-		roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-		return authorities;
+		return Stream.concat(
+				permissions.stream().map(SimpleGrantedAuthority::new),
+				roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+		).collect(Collectors.toSet());
 	}
 
 	@Override

@@ -34,6 +34,9 @@ management:
 app:
   api:
     version: v1
+  pdf:
+    storage-path: ${PDF_STORAGE_PATH:./data/documents}
+    logo-path: ${PDF_LOGO_PATH:classpath:static/assets/default-logo.png}
   jwt:
     secret: ${JWT_SECRET:change-me-to-a-secure-256-bit-secret-key-for-production-use}
     access-expiration-minutes: ${JWT_ACCESS_MINUTES:15}
@@ -43,9 +46,19 @@ app:
 
 springdoc:
   api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
     path: /v3/api-docs
   swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
     path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: true
+    try-it-out-enabled: true
+  show-actuator: false
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
 
 logging:
   pattern:

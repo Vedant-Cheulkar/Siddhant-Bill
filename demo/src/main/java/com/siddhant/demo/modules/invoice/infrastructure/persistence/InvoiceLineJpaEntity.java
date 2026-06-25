@@ -2,6 +2,8 @@ package com.siddhant.demo.modules.invoice.infrastructure.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -36,7 +38,8 @@ public class InvoiceLineJpaEntity {
 	@Column(name = "product_id", length = 36)
 	private String productId;
 
-	@Column(name = "product_snapshot", columnDefinition = "TEXT")
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "product_snapshot", columnDefinition = "json")
 	private String productSnapshot;
 
 	@Column(nullable = false, length = 500)

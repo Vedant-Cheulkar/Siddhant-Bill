@@ -1,5 +1,6 @@
 package com.siddhant.demo.shared.config;
 
+import com.siddhant.demo.shared.security.JwtAccessDeniedHandler;
 import com.siddhant.demo.shared.security.JwtAuthenticationEntryPoint;
 import com.siddhant.demo.shared.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -19,18 +20,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+	private static final String[] PUBLIC_AUTH = {
+			"/api/v1/auth/login",
+			"/api/v1/auth/register",
+			"/api/v1/auth/refresh"
+	};
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
 	public SecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
-			JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint
+			JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+			JwtAccessDeniedHandler jwtAccessDeniedHandler
 	) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+		this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
 	}
 
 	@Bean
@@ -38,9 +48,13 @@ public class SecurityConfig {
 		return http
 				.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+						.accessDeniedHandler(jwtAccessDeniedHandler))
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/v1/auth/**").permitAll()
+						.requestMatchers(PUBLIC_AUTH).permitAll()
+						.requestMatchers("/api/v1/auth/logout").authenticated()
+						.requestMatchers("/api/v1/auth/me").authenticated()
 						.requestMatchers("/actuator/health", "/actuator/info").permitAll()
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

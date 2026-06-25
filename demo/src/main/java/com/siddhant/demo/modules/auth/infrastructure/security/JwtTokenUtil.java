@@ -1,7 +1,10 @@
-package com.siddhant.demo.shared.security;
+package com.siddhant.demo.modules.auth.infrastructure.security;
 
 import com.siddhant.demo.shared.config.JwtProperties;
+import com.siddhant.demo.shared.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -13,13 +16,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * JWT utility: access-token creation and validation (stateless auth).
+ */
 @Component
-public class JwtTokenProvider {
+public class JwtTokenUtil {
 
 	private final JwtProperties jwtProperties;
 	private final SecretKey secretKey;
 
-	public JwtTokenProvider(JwtProperties jwtProperties) {
+	public JwtTokenUtil(JwtProperties jwtProperties) {
 		this.jwtProperties = jwtProperties;
 		this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
 	}
@@ -40,25 +46,34 @@ public class JwtTokenProvider {
 				.compact();
 	}
 
-	public Claims parseToken(String token) {
-		return Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token)
-				.getPayload();
+	public Claims parseAndValidate(String token) {
+		try {
+			return Jwts.parser()
+					.verifyWith(secretKey)
+					.build()
+					.parseSignedClaims(token)
+					.getPayload();
+		} catch (ExpiredJwtException ex) {
+			throw ex;
+		} catch (JwtException ex) {
+			throw new JwtException("Invalid JWT token", ex);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public UserPrincipal toPrincipal(Claims claims, String passwordPlaceholder) {
+	public UserPrincipal toPrincipal(Claims claims) {
 		return new UserPrincipal(
 				claims.getSubject(),
 				claims.get("email", String.class),
-				passwordPlaceholder,
-				claims.get("tenantId", String.class),
+				"",
 				claims.get("organizationId", String.class),
 				Set.copyOf((List<String>) claims.get("roles", List.class)),
 				Set.copyOf((List<String>) claims.get("permissions", List.class)),
 				true
 		);
+	}
+
+	public long accessTokenExpiresInSeconds() {
+		return jwtProperties.getAccessExpirationMinutes() * 60;
 	}
 }

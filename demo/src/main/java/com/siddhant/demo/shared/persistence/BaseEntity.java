@@ -11,10 +11,18 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Root persistence model for all tenant-scoped aggregates.
+ * <ul>
+ *   <li>UUID primary key (assigned on first persist)</li>
+ *   <li>UTC {@code created_at} / {@code updated_at}</li>
+ *   <li>Soft delete via {@code deleted_at}</li>
+ * </ul>
+ */
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class BaseEntity {
+public abstract class BaseEntity implements SoftDeletable {
 
 	@Id
 	@Column(length = 36, nullable = false, updatable = false)
@@ -43,12 +51,17 @@ public abstract class BaseEntity {
 		}
 	}
 
+	@PreUpdate
+	protected void onPreUpdate() {
+		updatedAt = Instant.now();
+	}
+
 	public boolean isDeleted() {
 		return deletedAt != null;
 	}
 
-	@PreUpdate
-	protected void onPreUpdate() {
+	public void restore() {
+		deletedAt = null;
 		updatedAt = Instant.now();
 	}
 

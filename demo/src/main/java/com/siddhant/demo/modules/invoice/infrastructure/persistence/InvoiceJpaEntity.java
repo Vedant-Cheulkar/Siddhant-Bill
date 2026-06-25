@@ -33,25 +33,16 @@ public class InvoiceJpaEntity {
 	@Column(length = 36)
 	private String id;
 
-	@Column(name = "tenant_id", nullable = false, length = 36, updatable = false)
-	private String tenantId;
-
 	@Column(name = "organization_id", nullable = false, length = 36, updatable = false)
 	private String organizationId;
 
-	@Column(name = "invoice_series_id", length = 36)
-	private String invoiceSeriesId;
-
-	@Column(name = "sequence_number")
-	private Long sequenceNumber;
-
-	@Column(name = "display_number", length = 50)
-	private String displayNumber;
+	@Column(name = "invoice_number", length = 50)
+	private String invoiceNumber;
 
 	@Column(name = "customer_id", nullable = false, length = 36)
 	private String customerId;
 
-	@Column(name = "customer_snapshot", columnDefinition = "TEXT")
+	@Column(name = "customer_snapshot", columnDefinition = "json")
 	private String customerSnapshot;
 
 	@Column(name = "invoice_date", nullable = false)
@@ -61,14 +52,14 @@ public class InvoiceJpaEntity {
 	private LocalDate dueDate;
 
 	@Column(name = "place_of_supply_state", nullable = false, length = 2)
-	private String placeOfSupplyState;
+	private String placeOfSupply;
 
 	@Column(name = "supply_type", nullable = false, length = 20)
-	private String supplyType;
+	private String supplyType = "B2B";
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 20)
-	private InvoiceStatus status;
+	private InvoiceStatus status = InvoiceStatus.DRAFT;
 
 	@Column(name = "currency_code", nullable = false, length = 3)
 	private String currencyCode = "INR";
@@ -106,6 +97,9 @@ public class InvoiceJpaEntity {
 	@Column(columnDefinition = "TEXT")
 	private String terms;
 
+	@Column(name = "pdf_storage_key", columnDefinition = "TEXT")
+	private String pdfStorageKey;
+
 	@Column(name = "issued_at")
 	private Instant issuedAt;
 
@@ -124,7 +118,7 @@ public class InvoiceJpaEntity {
 	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt;
 
-	@Column(name = "created_by", nullable = false, length = 36)
+	@Column(name = "created_by", length = 36)
 	private String createdBy;
 
 	@Column(name = "updated_by", length = 36)

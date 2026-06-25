@@ -18,6 +18,19 @@ public interface InvoiceJpaRepository extends JpaRepository<InvoiceJpaEntity, St
 
 	@Query("""
 			SELECT i FROM InvoiceJpaEntity i
+			LEFT JOIN FETCH i.lines
+			WHERE i.id = :id
+			  AND i.tenantId = :tenantId
+			  AND i.organizationId = :organizationId
+			  AND i.deletedAt IS NULL
+			""")
+	Optional<InvoiceJpaEntity> findDetailedByIdAndTenantIdAndOrganizationIdAndDeletedAtIsNull(
+			@Param("id") String id,
+			@Param("tenantId") String tenantId,
+			@Param("organizationId") String organizationId);
+
+	@Query("""
+			SELECT i FROM InvoiceJpaEntity i
 			WHERE i.tenantId = :tenantId
 			  AND i.organizationId = :organizationId
 			  AND i.deletedAt IS NULL

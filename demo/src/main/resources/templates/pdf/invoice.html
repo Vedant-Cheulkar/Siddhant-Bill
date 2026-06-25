@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Invoice ' + ${invoice.invoiceNumber()}">Invoice</title>
+    <style>
+        @page { size: A4; margin: 14mm 12mm 16mm 12mm; }
+        * { box-sizing: border-box; }
+        body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11px; color: #1f2937; line-height: 1.45; margin: 0; }
+        .header { display: table; width: 100%; margin-bottom: 18px; border-bottom: 2px solid #1e40af; padding-bottom: 12px; }
+        .header-left, .header-right { display: table-cell; vertical-align: top; }
+        .header-right { text-align: right; width: 42%; }
+        .logo { max-height: 56px; max-width: 180px; margin-bottom: 8px; }
+        .company-name { font-size: 18px; font-weight: 700; color: #1e3a8a; }
+        .muted { color: #6b7280; }
+        .tax-invoice-title { font-size: 20px; font-weight: 700; color: #111827; }
+        .badge { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: #eff6ff; color: #1d4ed8; }
+        .meta-grid { display: table; width: 100%; margin-bottom: 16px; }
+        .meta-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 10px; }
+        .panel { border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; background: #f9fafb; }
+        .panel h3 { margin: 0 0 6px 0; font-size: 11px; text-transform: uppercase; color: #374151; }
+        table.items { width: 100%; border-collapse: collapse; margin: 12px 0 14px 0; }
+        table.items th { background: #1e40af; color: #fff; font-size: 10px; text-transform: uppercase; padding: 7px 6px; text-align: left; }
+        table.items td { border-bottom: 1px solid #e5e7eb; padding: 7px 6px; vertical-align: top; }
+        table.items tr:nth-child(even) td { background: #f9fafb; }
+        .num { text-align: right; white-space: nowrap; }
+        .totals-wrap { display: table; width: 100%; }
+        .totals-spacer, .totals-panel { display: table-cell; vertical-align: top; }
+        .totals-spacer { width: 52%; }
+        .totals-panel { width: 48%; }
+        table.totals { width: 100%; border-collapse: collapse; }
+        table.totals td { padding: 5px 0; }
+        table.totals tr.grand td { border-top: 2px solid #1e40af; padding-top: 8px; font-size: 13px; font-weight: 700; color: #1e3a8a; }
+        .amount-words { margin-top: 12px; padding: 10px 12px; border-left: 4px solid #1e40af; background: #eff6ff; }
+        .footer-notes { margin-top: 16px; font-size: 10px; color: #4b5563; }
+        .footer-print { margin-top: 24px; text-align: center; font-size: 9px; color: #9ca3af; border-top: 1px dashed #d1d5db; padding-top: 8px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <img th:if="${invoice.logoDataUri() != null}" th:src="${invoice.logoDataUri()}" alt="Logo" class="logo"/>
+        <div class="company-name" th:text="${invoice.companyTradeName() != null && !invoice.companyTradeName().isBlank() ? invoice.companyTradeName() : invoice.companyName()}">Company</div>
+        <div class="muted" th:text="${invoice.companyName()}">Legal</div>
+        <div th:if="${invoice.companyAddressLine1() != null && !invoice.companyAddressLine1().isBlank()}">
+            <div th:text="${invoice.companyAddressLine1()}"></div>
+            <div th:if="${invoice.companyAddressLine2() != null && !invoice.companyAddressLine2().isBlank()}" th:text="${invoice.companyAddressLine2()}"></div>
+            <div th:text="${invoice.companyCityStatePin()}"></div>
+        </div>
+        <div th:if="${invoice.companyGstin() != null && !invoice.companyGstin().isBlank()}"><strong>GSTIN:</strong> <span th:text="${invoice.companyGstin()}"></span></div>
+        <div th:if="${invoice.companyPan() != null && !invoice.companyPan().isBlank()}"><strong>PAN:</strong> <span th:text="${invoice.companyPan()}"></span></div>
+        <div th:if="${invoice.companyEmail() != null && !invoice.companyEmail().isBlank()}" th:text="${invoice.companyEmail()}"></div>
+        <div th:if="${invoice.companyPhone() != null && !invoice.companyPhone().isBlank()}" th:text="${invoice.companyPhone()}"></div>
+    </div>
+    <div class="header-right">
+        <div class="tax-invoice-title">TAX INVOICE</div>
+        <div class="badge" th:text="${invoice.statusLabel()}">DRAFT</div>
+        <div style="margin-top: 10px;">
+            <div><strong>Invoice No:</strong> <span th:text="${invoice.invoiceNumber()}"></span></div>
+            <div><strong>Date:</strong> <span th:text="${#temporals.format(invoice.invoiceDate(), 'dd MMM yyyy')}"></span></div>
+            <div th:if="${invoice.dueDate() != null}"><strong>Due:</strong> <span th:text="${#temporals.format(invoice.dueDate(), 'dd MMM yyyy')}"></span></div>
+            <div><strong>POS:</strong> <span th:text="${invoice.placeOfSupplyState()}"></span></div>
+            <div><strong>Type:</strong> <span th:text="${invoice.supplyType()}"></span></div>
+        </div>
+    </div>
+</div>
+
+<div class="meta-grid">
+    <div class="meta-col">
+        <div class="panel">
+            <h3>Bill To</h3>
+            <div style="font-weight: 600;" th:text="${invoice.customerName()}"></div>
+            <div th:if="${invoice.customerGstin() != null && !invoice.customerGstin().isBlank()}"><strong>GSTIN:</strong> <span th:text="${invoice.customerGstin()}"></span></div>
+            <div th:if="${invoice.customerAddress() != null && !invoice.customerAddress().isBlank()}" th:text="${invoice.customerAddress()}"></div>
+            <div th:if="${invoice.customerStateCode() != null && !invoice.customerStateCode().isBlank()}"><strong>State:</strong> <span th:text="${invoice.customerStateCode()}"></span></div>
+            <div th:if="${invoice.customerMobile() != null && !invoice.customerMobile().isBlank()}" th:text="${invoice.customerMobile()}"></div>
+            <div th:if="${invoice.customerEmail() != null && !invoice.customerEmail().isBlank()}" th:text="${invoice.customerEmail()}"></div>
+        </div>
+    </div>
+    <div class="meta-col">
+        <div class="panel">
+            <h3>GST Summary</h3>
+            <div th:if="${invoice.intraState()}">Tax: <strong>CGST + SGST</strong></div>
+            <div th:unless="${invoice.intraState()}">Tax: <strong>IGST</strong></div>
+            <div style="margin-top: 6px;">Taxable: <strong th:text="${#numbers.formatDecimal(invoice.taxableAmount(), 1, 'COMMA', 2, 'POINT')}"></strong></div>
+        </div>
+    </div>
+</div>
+
+<table class="items">
+    <thead>
+    <tr>
+        <th>#</th><th>Description</th><th>HSN</th><th class="num">Qty</th><th class="num">Rate</th>
+        <th class="num">Disc.</th><th class="num">Taxable</th>
+        <th class="num" th:if="${invoice.intraState()}">CGST</th>
+        <th class="num" th:if="${invoice.intraState()}">SGST</th>
+        <th class="num" th:unless="${invoice.intraState()}">IGST</th>
+        <th class="num">Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="line : ${invoice.lines()}">
+        <td th:text="${line.lineNumber()}"></td>
+        <td th:text="${line.description()}"></td>
+        <td th:text="${line.hsnSac()}"></td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.quantity(), 1, 'COMMA', 3, 'POINT')}"></td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.unitPrice(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.discountAmount(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.taxableAmount(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:if="${invoice.intraState()}" th:text="${#numbers.formatDecimal(line.cgstAmount(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:if="${invoice.intraState()}" th:text="${#numbers.formatDecimal(line.sgstAmount(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:unless="${invoice.intraState()}" th:text="${#numbers.formatDecimal(line.igstAmount(), 1, 'COMMA', 2, 'POINT')}"></td>
+        <td class="num" th:text="${#numbers.formatDecimal(line.lineTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="totals-wrap">
+    <div class="totals-spacer"></div>
+    <div class="totals-panel">
+        <table class="totals">
+            <tr><td>Subtotal</td><td class="num" th:text="${#numbers.formatDecimal(invoice.subtotal(), 1, 'COMMA', 2, 'POINT')}"></td></tr>
+            <tr th:if="${invoice.discountTotal().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <td>Discount</td><td class="num" th:text="'-' + ${#numbers.formatDecimal(invoice.discountTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr><td>Taxable</td><td class="num" th:text="${#numbers.formatDecimal(invoice.taxableAmount(), 1, 'COMMA', 2, 'POINT')}"></td></tr>
+            <tr th:if="${invoice.cgstTotal().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <td>CGST</td><td class="num" th:text="${#numbers.formatDecimal(invoice.cgstTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr th:if="${invoice.sgstTotal().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <td>SGST</td><td class="num" th:text="${#numbers.formatDecimal(invoice.sgstTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr th:if="${invoice.igstTotal().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <td>IGST</td><td class="num" th:text="${#numbers.formatDecimal(invoice.igstTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr th:if="${invoice.cessTotal().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                <td>CESS</td><td class="num" th:text="${#numbers.formatDecimal(invoice.cessTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr th:if="${invoice.roundOff().compareTo(T(java.math.BigDecimal).ZERO) != 0}">
+                <td>Round Off</td><td class="num" th:text="${#numbers.formatDecimal(invoice.roundOff(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr class="grand">
+                <td>Grand Total (INR)</td><td class="num" th:text="${#numbers.formatDecimal(invoice.grandTotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="amount-words"><strong>Amount in words:</strong> <span th:text="${invoice.amountInWords()}"></span></div>
+<div class="footer-notes" th:if="${invoice.notes() != null && !invoice.notes().isBlank()}"><strong>Notes:</strong> <span th:text="${invoice.notes()}"></span></div>
+<div class="footer-notes" th:if="${invoice.terms() != null && !invoice.terms().isBlank()}"><strong>Terms:</strong> <span th:text="${invoice.terms()}"></span></div>
+<div class="footer-print">Computer-generated tax invoice.</div>
+</body>
+</html>
