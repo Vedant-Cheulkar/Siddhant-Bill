@@ -123,8 +123,8 @@ export function CustomerFormPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
         {/* Tabs */}
-        <div className="border-b border-border">
-          <div className="flex gap-6">
+        <div className="border-b border-border overflow-x-auto">
+          <div className="flex gap-6 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.value}
@@ -145,7 +145,7 @@ export function CustomerFormPage() {
 
         {activeTab === 'basic' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Customer Code *"
                 hint="Letters, numbers, _ and - only"
@@ -158,7 +158,7 @@ export function CustomerFormPage() {
                 {...register('name')}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="E-mail Address"
                 type="email"
@@ -179,7 +179,7 @@ export function CustomerFormPage() {
 
         {activeTab === 'billing' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Billing State Code *"
                 hint="2-digit GST state code (e.g. 27 = Maharashtra)"
@@ -197,7 +197,7 @@ export function CustomerFormPage() {
                 {...register('creditDays')}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="GSTIN"
                 placeholder="27AABCM1234F1Z5"
@@ -247,7 +247,7 @@ export function CustomerFormPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center gap-3 pt-2">
           <Button
             variant="outline"
             type="button"
@@ -263,7 +263,7 @@ export function CustomerFormPage() {
             <Button
               variant="danger"
               type="button"
-              className="ml-auto"
+              className="sm:ml-auto"
               onClick={() => setDeleteOpen(true)}
               disabled={deleteMutation.isPending}
             >

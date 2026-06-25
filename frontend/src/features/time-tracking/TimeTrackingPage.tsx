@@ -14,7 +14,7 @@ export function TimeTrackingPage() {
       <PageHeader title="Time Tracking" />
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {SUMMARY_CARDS.map((card) => (
           <Card key={card.label}>
             <CardContent>

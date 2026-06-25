@@ -6,6 +6,7 @@ import { Button } from '@shared/components/ui/Button';
 import { InvoiceStatusBadge } from '@shared/components/ui/Badge';
 import { DataTable, type Column } from '@shared/components/widgets/DataTable';
 import { TabBar } from '@shared/components/widgets/TabBar';
+import { ListPageToolbar } from '@shared/components/widgets/ListPageToolbar';
 import { SearchInput } from '@shared/components/widgets/SearchInput';
 import { Pagination } from '@shared/components/widgets/Pagination';
 import { PageHeader } from '@shared/components/widgets/PageHeader';
@@ -74,6 +75,7 @@ export function InvoiceListPage() {
     {
       key: 'invoiceDate',
       header: 'Date',
+      className: 'hidden md:table-cell',
       render: (r) => (
         <span className="text-sm text-muted">{formatDate(r.invoiceDate)}</span>
       ),
@@ -135,16 +137,17 @@ export function InvoiceListPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="px-5 pt-3 border-b border-border flex items-end justify-between">
-          <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
-          <div className="flex items-center gap-2 pb-3">
-            <SearchInput
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Search by invoice number…"
-              className="w-52"
-            />
-          </div>
+        <div className="px-4 sm:px-5 pt-3 border-b border-border">
+          <ListPageToolbar
+            tabs={<TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />}
+            search={
+              <SearchInput
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Search by invoice number…"
+              />
+            }
+          />
         </div>
 
         {isError ? (

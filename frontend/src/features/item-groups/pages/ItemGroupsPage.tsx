@@ -20,7 +20,7 @@ function buildColumns(navigate: (path: string) => void): Column<ProductResponse>
   return [
     { key: 'sku',         header: 'SKU',         render: (r) => <span className="font-mono text-xs text-muted">{r.sku}</span> },
     { key: 'name',        header: 'Name',        render: (r) => <span className="font-medium text-sm">{r.name}</span> },
-    { key: 'description', header: 'Description', render: (r) => <span className="text-xs text-muted">{r.description ?? '—'}</span> },
+    { key: 'description', header: 'Description', className: 'hidden md:table-cell', render: (r) => <span className="text-xs text-muted">{r.description ?? '—'}</span> },
     { key: 'salePrice',   header: 'Sale Price',  render: (r) => <span className="text-xs font-semibold">{formatCurrency(r.salePrice)}</span> },
     { key: 'active',      header: 'Status',      render: (r) => <Badge variant={r.active ? 'active' : 'inactive'}>{r.active ? 'Active' : 'Inactive'}</Badge> },
     { key: 'actions',     header: '',            render: (r) => <RowActions product={r} onEdit={() => navigate(`/item-groups/${r.id}/edit`)} /> },
@@ -111,12 +111,12 @@ export function ItemGroupsPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
+        <div className="flex items-center gap-3 px-4 sm:px-5 py-4 border-b border-border">
           <SearchInput
             value={search}
             onChange={handleSearchChange}
             placeholder="Search by name or SKU…"
-            className="w-72"
+            className="sm:max-w-sm"
           />
         </div>
 

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, type Control, type FieldArrayWithId, type FieldErrors, type UseFormRegister } from 'react-hook-form';
 import { z } from 'zod';
-import { Trash2, Plus, Minus, ChevronRight, AlertCircle, Printer } from 'lucide-react';
+import { ChevronRight, AlertCircle, Printer } from 'lucide-react';
 import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { format, addDays, parseISO } from 'date-fns';
 import { Card } from '@shared/components/ui/Card';
@@ -27,6 +27,7 @@ import { downloadInvoicePdf } from '../api/invoices.api';
 import { getApiErrorMessage } from '@shared/utils/apiError';
 import { toast } from 'sonner';
 import { useSettingsStore } from '@features/settings/store/useSettingsStore';
+import { LineItemEditor, calcLineTotal, type LineItemFormShape } from '@shared/components/widgets/LineItemEditor';
 import type { InvoiceStatus } from '../types/invoice.types';
 
 /* ── Zod schema ───────────────────────────────────────────── */
@@ -60,11 +61,6 @@ const defaultItem = {
 };
 
 /* ── Calculations ─────────────────────────────────────────── */
-function calcLineTotal(item: FormValues['items'][number]): number {
-  const base = item.quantity * item.unitPrice;
-  const afterDiscount = base * (1 - item.discountPercent / 100);
-  return afterDiscount * (1 + item.taxPercent / 100);
-}
 
 const STATUS_TRANSITIONS: Partial<Record<InvoiceStatus, { to: InvoiceStatus; label: string; danger?: boolean }[]>> = {
   DRAFT:   [{ to: 'ISSUED', label: 'Issue Invoice' }],
@@ -277,8 +273,8 @@ export function InvoiceDetailPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+        <div className="min-w-0">
           <div className="flex items-center gap-2 text-xs text-muted mb-1">
             <button onClick={() => navigate('/invoices')} className="hover:text-fg transition-colors">
               Invoices
@@ -297,7 +293,7 @@ export function InvoiceDetailPage() {
         </div>
 
         {/* Status action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {isEdit && (
             <>
               <Button
@@ -350,13 +346,13 @@ export function InvoiceDetailPage() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-[1fr_360px] gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
           {/* Left: form */}
           <div className="space-y-6">
             {/* Customer + dates */}
             <Card className="p-6 space-y-4">
               <h2 className="text-sm font-semibold text-fg">Invoice Details</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <Controller
                     control={control}
@@ -408,161 +404,23 @@ export function InvoiceDetailPage() {
             </Card>
 
             {/* Line items */}
-            <Card className="p-6">
+            <Card className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-fg mb-4">Line Items</h2>
-
-              {/* Header */}
-              <div className="grid grid-cols-[1fr_100px_90px_80px_80px_80px_36px] gap-2 px-1 mb-2">
-                {['Description', 'Unit Price', 'Qty', 'Tax %', 'Disc %', 'Total', ''].map((h) => (
-                  <span key={h} className="text-2xs font-semibold text-muted uppercase tracking-wider">{h}</span>
-                ))}
-              </div>
-
-              <div className="space-y-2">
-                {fields.map((field, idx) => {
-                  const item = watched.items?.[idx] ?? field;
-                  const total = calcLineTotal(item);
-
-                  return (
-                    <div
-                      key={field.id}
-                      className="grid grid-cols-[1fr_100px_90px_80px_80px_80px_36px] gap-2 items-start bg-stone-50 rounded-xl p-3 border border-border"
-                    >
-                      {/* Description + optional product search */}
-                      <div className="space-y-1.5">
-                        {!isReadOnly && (
-                          <Controller
-                            control={control}
-                            name={`items.${idx}.productId`}
-                            render={({ field: pf }) => (
-                              <Combobox
-                                placeholder="Link product…"
-                                value={pf.value ?? ''}
-                                onChange={(v, opt) => handleProductSelect(idx, v, opt)}
-                                options={productOptions}
-                                isLoading={productsLoading}
-                                onSearch={setActiveProductSearch}
-                                className="mb-1"
-                              />
-                            )}
-                          />
-                        )}
-                        <input
-                          {...register(`items.${idx}.description`)}
-                          placeholder="Description"
-                          disabled={isReadOnly}
-                          className="w-full text-xs outline-none bg-transparent text-fg placeholder:text-muted disabled:opacity-70"
-                        />
-                        {errors.items?.[idx]?.description && (
-                          <p className="text-2xs text-red-500">{errors.items[idx]?.description?.message}</p>
-                        )}
-                      </div>
-
-                      {/* Unit Price */}
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register(`items.${idx}.unitPrice`, { valueAsNumber: true })}
-                        disabled={isReadOnly}
-                        className="text-xs outline-none bg-surface border border-border rounded-lg px-2 py-1.5 w-full disabled:opacity-70"
-                      />
-
-                      {/* Qty stepper */}
-                      <div className={`flex items-center gap-1 border border-border rounded-lg px-1.5 py-1 ${isReadOnly ? 'opacity-70' : ''}`}>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, quantity: Math.max(0.01, (item.quantity ?? 1) - 1) })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Minus size={9} />
-                        </button>
-                        <span className="flex-1 text-center text-xs font-medium">{item.quantity ?? 1}</span>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, quantity: (item.quantity ?? 1) + 1 })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Plus size={9} />
-                        </button>
-                      </div>
-
-                      {/* Tax stepper */}
-                      <div className={`flex items-center gap-1 border border-border rounded-lg px-1.5 py-1 ${isReadOnly ? 'opacity-70' : ''}`}>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, taxPercent: Math.max(0, (item.taxPercent ?? 0) - 1) })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Minus size={9} />
-                        </button>
-                        <span className="flex-1 text-center text-xs font-medium">{item.taxPercent ?? 0}%</span>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, taxPercent: Math.min(100, (item.taxPercent ?? 0) + 1) })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Plus size={9} />
-                        </button>
-                      </div>
-
-                      {/* Discount stepper */}
-                      <div className={`flex items-center gap-1 border border-border rounded-lg px-1.5 py-1 ${isReadOnly ? 'opacity-70' : ''}`}>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, discountPercent: Math.max(0, (item.discountPercent ?? 0) - 0.5) })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Minus size={9} />
-                        </button>
-                        <span className="flex-1 text-center text-xs font-medium">{item.discountPercent ?? 0}%</span>
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => update(idx, { ...item, discountPercent: Math.min(100, (item.discountPercent ?? 0) + 0.5) })}
-                          className="w-4 h-4 flex items-center justify-center text-muted hover:text-fg disabled:cursor-not-allowed"
-                        >
-                          <Plus size={9} />
-                        </button>
-                      </div>
-
-                      {/* Line total */}
-                      <span className="text-xs font-semibold pt-1.5">
-                        {formatCurrency(total)}
-                      </span>
-
-                      {/* Delete */}
-                      <button
-                        type="button"
-                        onClick={() => remove(idx)}
-                        disabled={fields.length === 1 || isReadOnly}
-                        className="p-1 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors text-muted disabled:opacity-30 mt-0.5"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {errors.items?.root && (
-                <p className="text-xs text-red-500 mt-2">{errors.items.root.message}</p>
-              )}
-
-              {!isReadOnly && (
-                <button
-                  type="button"
-                  onClick={() => append(defaultItem)}
-                  className="flex items-center gap-1.5 text-xs text-muted hover:text-fg transition-colors mt-3 px-1"
-                >
-                  <Plus size={12} /> Add line item
-                </button>
-              )}
+              <LineItemEditor
+                fields={fields as FieldArrayWithId<LineItemFormShape, 'items', 'id'>[]}
+                watchedItems={watched.items ?? []}
+                register={register as UseFormRegister<LineItemFormShape>}
+                control={control as unknown as Control<LineItemFormShape>}
+                errors={errors as FieldErrors<LineItemFormShape>}
+                isReadOnly={isReadOnly}
+                productOptions={productOptions}
+                productsLoading={productsLoading}
+                onProductSearch={setActiveProductSearch}
+                onProductSelect={handleProductSelect}
+                onUpdate={(idx, item) => update(idx, item)}
+                onRemove={remove}
+                onAppend={() => append(defaultItem)}
+              />
             </Card>
 
             {/* Notes */}
@@ -580,7 +438,7 @@ export function InvoiceDetailPage() {
 
           {/* Right: invoice preview / summary */}
           <div className="space-y-4">
-            <Card className="p-5 sticky top-4">
+            <Card className="p-5 xl:sticky xl:top-4">
               <h2 className="text-sm font-semibold mb-4">Invoice Summary</h2>
 
               <div className="bg-stone-50 rounded-xl border border-border p-4 text-xs space-y-3">
@@ -694,7 +552,7 @@ export function InvoiceDetailPage() {
 
         {/* Footer actions */}
         {!isReadOnly && (
-          <div className="flex items-center justify-between mt-8 pt-4 border-t border-border">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 mt-8 pt-4 border-t border-border">
             <p className="text-xs text-muted">
               {isEdit
                 ? `Last updated: ${existing?.updatedAt ? format(new Date(existing.updatedAt), 'MMM d, yyyy h:mma') : '—'}`

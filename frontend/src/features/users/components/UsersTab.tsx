@@ -108,7 +108,7 @@ export function UsersTab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
             <CardTitle>Team members</CardTitle>
             <p className="text-xs text-muted mt-1">
@@ -128,7 +128,8 @@ export function UsersTab() {
           ) : (
             <div className="divide-y divide-border">
               {(users ?? []).map((u) => (
-                <div key={u.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                <div key={u.id} className="flex flex-col gap-3 sm:flex-row sm:items-center py-4 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
                   <div className="w-9 h-9 rounded-lg bg-accent/10 text-accent flex items-center justify-center text-xs font-bold shrink-0">
                     {u.fullName.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
                   </div>
@@ -136,6 +137,8 @@ export function UsersTab() {
                     <p className="text-sm font-medium text-fg truncate">{u.fullName}</p>
                     <p className="text-xs text-muted truncate">{u.email}</p>
                   </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 sm:shrink-0">
                   <RoleBadge role={u.role} />
                   <span
                     className={cn(
@@ -145,7 +148,7 @@ export function UsersTab() {
                   >
                     {u.active ? 'Active' : 'Inactive'}
                   </span>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex flex-wrap items-center gap-1">
                     <Button
                       type="button"
                       variant="outline"
@@ -179,6 +182,7 @@ export function UsersTab() {
                         </Button>
                       </>
                     )}
+                  </div>
                   </div>
                 </div>
               ))}

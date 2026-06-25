@@ -43,7 +43,7 @@ export function ReportPage() {
       <PageHeader title="Reports" description="Invoice summary and multi-year trend" />
 
       {/* KPI row — always renders, shows — when errored */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label="Issued Invoices"    value={formatNumber(data?.issuedInvoiceCount    ?? 0)} icon={<CheckCircle2 size={16} />} isLoading={isLoading} isError={isError} />
         <KpiCard label="Draft Invoices"     value={formatNumber(data?.draftInvoiceCount     ?? 0)} icon={<FileText size={16} />}     isLoading={isLoading} isError={isError} />
         <KpiCard label="Cancelled Invoices" value={formatNumber(data?.cancelledInvoiceCount ?? 0)} icon={<XCircle size={16} />}      isLoading={isLoading} isError={isError} />

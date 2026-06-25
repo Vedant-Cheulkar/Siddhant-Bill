@@ -18,7 +18,7 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-t border-border">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-3 sm:px-5 py-3 border-t border-border">
       {totalElements !== undefined ? (
         <p className="text-xs text-muted">{totalElements.toLocaleString('en-IN')} total</p>
       ) : (

@@ -5,6 +5,7 @@ import { InvoiceStatusBadge } from '@shared/components/ui/Badge';
 import { EmptyState } from '@shared/components/ui/EmptyState';
 import { SkeletonRow } from '@shared/components/ui/Skeleton';
 import { SearchInput } from '@shared/components/widgets/SearchInput';
+import { TabBar } from '@shared/components/widgets/TabBar';
 import { useInvoices } from '@features/invoices/hooks/useInvoices';
 import { useCustomerMap } from '@features/customers/hooks/useCustomerMap';
 import { formatCurrency, formatDate } from '@shared/utils/format';
@@ -37,48 +38,37 @@ export function RecentInvoicesWidget() {
 
   return (
     <div className="overflow-hidden">
-      {/* Header row — title + search/filter on same baseline */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
-        <h3 className="text-sm font-semibold">Recent Invoices</h3>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-5 pt-4 pb-3 border-b border-border">
+        <h3 className="text-sm font-semibold shrink-0">Recent Invoices</h3>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <SearchInput
             value={search}
             onChange={setSearch}
             placeholder="Search..."
-            className="w-36"
+            className="sm:w-36"
           />
-          <button className="flex items-center gap-1 px-2.5 py-1.5 border border-border rounded-lg text-xs bg-surface hover:bg-bg transition-colors whitespace-nowrap">
+          <button className="flex items-center gap-1 px-2.5 py-1.5 border border-border rounded-lg text-xs bg-surface hover:bg-bg transition-colors whitespace-nowrap shrink-0">
             <SlidersHorizontal size={11} /> Filter
           </button>
         </div>
       </div>
 
-      {/* Tab row */}
-      <div className="flex items-center gap-1 px-5 border-b border-border">
-        {TABS.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => setActiveTab(tab.value)}
-            className={cn(
-              'px-3 py-3 text-sm font-medium border-b-2 -mb-px transition-all whitespace-nowrap',
-              activeTab === tab.value
-                ? 'border-accent text-accent'
-                : 'border-transparent text-muted hover:text-fg hover:border-border-strong'
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="px-4 sm:px-5 border-b border-border">
+        <TabBar tabs={TABS} active={activeTab} onChange={setActiveTab} />
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
-              {['Invoice ID', 'Customer', 'Amount', 'Date', 'Status'].map((h) => (
-                <th key={h} className="text-left px-5 py-3 text-xs font-medium text-muted whitespace-nowrap">
+              {[
+                { h: 'Invoice ID', className: '' },
+                { h: 'Customer', className: '' },
+                { h: 'Amount', className: '' },
+                { h: 'Date', className: 'hidden md:table-cell' },
+                { h: 'Status', className: 'hidden md:table-cell' },
+              ].map(({ h, className }) => (
+                <th key={h} className={cn('text-left px-3 sm:px-5 py-3 text-xs font-medium text-muted whitespace-nowrap', className)}>
                   {h}
                 </th>
               ))}
@@ -100,11 +90,11 @@ export function RecentInvoicesWidget() {
                   onClick={() => navigate(`/invoices/${inv.id}`)}
                   className="border-b border-border hover:bg-indigo-50/60 cursor-pointer transition-colors"
                 >
-                  <td className="px-5 py-3.5 font-mono text-xs">{inv.displayNumber ?? '—'}</td>
-                  <td className="px-5 py-3.5 text-xs text-muted">{customerMap.get(inv.customerId) ?? inv.customerId}</td>
-                  <td className="px-5 py-3.5 text-xs font-semibold">{formatCurrency(inv.grandTotal)}</td>
-                  <td className="px-5 py-3.5 text-xs text-muted">{formatDate(inv.invoiceDate)}</td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-3 sm:px-5 py-3.5 font-mono text-xs">{inv.displayNumber ?? '—'}</td>
+                  <td className="px-3 sm:px-5 py-3.5 text-xs text-muted max-w-[8rem] sm:max-w-none truncate">{customerMap.get(inv.customerId) ?? inv.customerId}</td>
+                  <td className="px-3 sm:px-5 py-3.5 text-xs font-semibold">{formatCurrency(inv.grandTotal)}</td>
+                  <td className="hidden md:table-cell px-5 py-3.5 text-xs text-muted">{formatDate(inv.invoiceDate)}</td>
+                  <td className="hidden md:table-cell px-5 py-3.5">
                     <InvoiceStatusBadge status={inv.status} />
                   </td>
                 </tr>

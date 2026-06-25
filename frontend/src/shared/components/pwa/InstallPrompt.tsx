@@ -39,12 +39,12 @@ export function InstallPrompt() {
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border bg-accent-bg px-4 py-2.5 safe-top">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border bg-accent-bg px-4 py-2.5 safe-top">
       <div className="flex min-w-0 items-center gap-2 text-sm text-accent-text">
         <Download size={15} className="shrink-0" />
-        <span className="font-medium">Install Siddhant Bill for quick access</span>
+        <span className="font-medium truncate">Install Siddhant Bill for quick access</span>
       </div>
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
         <Button type="button" size="sm" variant="outline" onClick={handleInstall}>
           Install
         </Button>

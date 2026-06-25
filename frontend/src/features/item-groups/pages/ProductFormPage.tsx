@@ -96,7 +96,7 @@ export function ProductFormPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
         <Card className="p-6 space-y-4">
           <h2 className="text-sm font-semibold text-fg">Basic Information</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="SKU *"
               hint="Unique stock keeping unit"
@@ -122,7 +122,7 @@ export function ProductFormPage() {
 
         <Card className="p-6 space-y-4">
           <h2 className="text-sm font-semibold text-fg">Pricing & Compliance</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Sale Price *"
               type="number"
@@ -158,7 +158,7 @@ export function ProductFormPage() {
           </label>
         </Card>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="outline" type="button" onClick={() => navigate('/item-groups')}>
             Cancel
           </Button>

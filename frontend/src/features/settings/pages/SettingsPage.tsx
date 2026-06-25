@@ -82,9 +82,9 @@ const GST_RATES = [0, 5, 12, 18, 28];
 /* ── Profile row ─────────────────────────────────────────────── */
 function ProfileRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
-      <p className="text-sm text-muted">{label}</p>
-      <p className="text-sm font-medium text-fg">{value || '—'}</p>
+    <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between py-3 border-b border-border last:border-0">
+      <p className="text-sm text-muted shrink-0">{label}</p>
+      <p className="text-sm font-medium text-fg break-all sm:text-right">{value || '—'}</p>
     </div>
   );
 }
@@ -166,8 +166,8 @@ export function SettingsPage() {
       <PageHeader title="Settings" description="Configure your company, invoicing, and tax preferences." />
 
       {/* Tab bar */}
-      <div className="border-b border-border">
-        <div className="flex gap-1">
+      <div className="border-b border-border overflow-x-auto">
+        <div className="flex gap-1 min-w-max">
           {tabs.map((tab) => (
             <button
               key={tab.value}
@@ -203,7 +203,7 @@ export function SettingsPage() {
                 error={companyForm.formState.errors.name?.message}
                 {...companyForm.register('name')}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="GSTIN"
                   placeholder="27AABCM1234F1Z5"
@@ -225,7 +225,7 @@ export function SettingsPage() {
                 label="Registered Address"
                 {...companyForm.register('address')}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="City"
                   {...companyForm.register('city')}
@@ -239,7 +239,7 @@ export function SettingsPage() {
                   {...companyForm.register('stateCode')}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Phone"
                   hint="10-digit Indian mobile (starts with 6–9)"
@@ -276,7 +276,7 @@ export function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Invoice Prefix *"
                   hint='e.g. "SL" generates SL-2026-001'

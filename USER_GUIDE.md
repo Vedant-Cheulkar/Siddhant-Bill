@@ -574,6 +574,7 @@ You can install Siddhant Bill like a native app for faster access. **You still n
 
 - Sign in with your normal email and password.
 - Use the **hamburger menu** (☰) on small screens to open navigation.
+- List tables may scroll horizontally; less important columns hide on narrow screens.
 - If you see **Update available**, tap **Reload** to get the latest version.
 - When offline, an amber banner appears — reconnect to view or edit billing data.
 

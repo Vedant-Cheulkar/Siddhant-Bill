@@ -17,9 +17,9 @@ const PAGE_SIZE = 20;
 const COLUMNS: Column<CustomerResponse>[] = [
   { key: 'name',       header: 'Name',        render: (r) => <span className="font-medium text-sm">{r.name}</span> },
   { key: 'code',       header: 'Code',        render: (r) => <span className="text-xs font-mono text-muted">{r.code}</span> },
-  { key: 'email',      header: 'Email',       render: (r) => <span className="text-xs text-muted">{r.email ?? '—'}</span> },
-  { key: 'phone',      header: 'Phone',       render: (r) => <span className="text-xs text-muted">{r.phone ?? '—'}</span> },
-  { key: 'creditDays', header: 'Credit Days', render: (r) => <span className="text-xs">{r.creditDays}d</span> },
+  { key: 'email',      header: 'Email',       className: 'hidden lg:table-cell', render: (r) => <span className="text-xs text-muted">{r.email ?? '—'}</span> },
+  { key: 'phone',      header: 'Phone',       className: 'hidden lg:table-cell', render: (r) => <span className="text-xs text-muted">{r.phone ?? '—'}</span> },
+  { key: 'creditDays', header: 'Credit Days', className: 'hidden md:table-cell', render: (r) => <span className="text-xs">{r.creditDays}d</span> },
   { key: 'active',     header: 'Status',      render: (r) => <Badge variant={r.active ? 'active' : 'inactive'}>{r.active ? 'Active' : 'Inactive'}</Badge> },
 ];
 
@@ -53,12 +53,12 @@ export function CustomerListPage() {
       />
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
+        <div className="flex items-center gap-3 px-4 sm:px-5 py-4 border-b border-border">
           <SearchInput
             value={search}
             onChange={handleSearchChange}
             placeholder="Search by name or email…"
-            className="w-72"
+            className="sm:max-w-sm"
           />
         </div>
 

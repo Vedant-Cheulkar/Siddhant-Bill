@@ -10,12 +10,12 @@ export function DashboardPage() {
   return (
     <div className="space-y-4">
       {/* Row 1: KPI cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <KpiRow />
       </div>
 
       {/* Row 2: Summary | EarningsChart | MiniCalendar */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader><CardTitle>Summary</CardTitle></CardHeader>
           <SummaryPanel />
@@ -35,7 +35,7 @@ export function DashboardPage() {
       </div>
 
       {/* Row 3: Invoice table | PercentageChart */}
-      <div className="grid grid-cols-[1fr_280px] gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
         <Card className="overflow-hidden">
           <RecentInvoicesWidget />
         </Card>
