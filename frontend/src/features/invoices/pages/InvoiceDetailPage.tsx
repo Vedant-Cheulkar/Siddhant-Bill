@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, useFieldArray, Controller, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { Trash2, Plus, Minus, ChevronRight, AlertCircle, Printer } from 'lucide-react';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { format, addDays, parseISO } from 'date-fns';
 import { Card } from '@shared/components/ui/Card';
 import { Input } from '@shared/components/ui/Input';
@@ -122,7 +122,7 @@ export function InvoiceDetailPage() {
     setValue,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema) as Resolver<FormValues>,
+    resolver: typedZodResolver<FormValues>(schema),
     defaultValues: {
       customerId: '',
       invoiceDate: format(new Date(), 'yyyy-MM-dd'),

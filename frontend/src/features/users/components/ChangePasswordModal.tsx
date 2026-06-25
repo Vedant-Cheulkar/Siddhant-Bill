@@ -1,7 +1,7 @@
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { useMutation } from '@tanstack/react-query';
 import { Modal } from '@shared/components/ui/Modal';
 import { Input } from '@shared/components/ui/Input';
@@ -35,7 +35,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
   const logout = useAuthStore((s) => s.logout);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema) as Resolver<FormData>,
+    resolver: typedZodResolver<FormData>(schema),
   });
 
   const mutation = useMutation({

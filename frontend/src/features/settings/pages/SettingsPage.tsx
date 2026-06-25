@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { Building2, FileText, BadgePercent, User, Lock, ChevronRight, Users } from 'lucide-react';
@@ -9,13 +8,13 @@ import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
 import { PageHeader } from '@shared/components/widgets/PageHeader';
 import { useAuthStore } from '@features/auth/store/authStore';
-import { useSettingsStore } from '../store/useSettingsStore';
+import { useSettingsStore, type CompanySettings } from '../store/useSettingsStore';
 import { useOrgSettings, useSaveSettings } from '../hooks/useOrgSettings';
 import { getApiErrorMessage } from '@shared/utils/apiError';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { cn } from '@shared/utils/cn';
 import {
   refineIndianTaxIds,
-  zIndianStateCode,
   zOptionalEmail,
   zOptionalGstin,
   zOptionalIndianPhone,
@@ -65,6 +64,19 @@ const taxSchema = z.object({
 });
 type TaxForm = z.infer<typeof taxSchema>;
 
+function toCompanySettings(data: CompanyForm): CompanySettings {
+  return {
+    name: data.name,
+    gstin: data.gstin ?? '',
+    pan: data.pan ?? '',
+    address: data.address ?? '',
+    city: data.city ?? '',
+    stateCode: data.stateCode ?? '',
+    phone: data.phone ?? '',
+    email: data.email ?? '',
+  };
+}
+
 const GST_RATES = [0, 5, 12, 18, 28];
 
 /* ── Profile row ─────────────────────────────────────────────── */
@@ -90,13 +102,13 @@ export function SettingsPage() {
 
   /* Company form */
   const companyForm = useForm<CompanyForm>({
-    resolver: zodResolver(companySchema) as Resolver<CompanyForm>,
+    resolver: typedZodResolver<CompanyForm>(companySchema),
     defaultValues: settings.company,
   });
 
   /* Invoice form */
   const invoiceForm = useForm<InvoiceForm>({
-    resolver: zodResolver(invoiceSchema) as Resolver<InvoiceForm>,
+    resolver: typedZodResolver<InvoiceForm>(invoiceSchema),
     defaultValues: {
       prefix:         settings.invoice.prefix,
       startingNumber: settings.invoice.startingNumber,
@@ -107,14 +119,15 @@ export function SettingsPage() {
 
   /* Tax form */
   const taxForm = useForm<TaxForm>({
-    resolver: zodResolver(taxSchema) as Resolver<TaxForm>,
+    resolver: typedZodResolver<TaxForm>(taxSchema),
     defaultValues: { defaultRate: settings.tax.defaultRate },
   });
 
   const saveCompany = async (data: CompanyForm) => {
+    const company = toCompanySettings(data);
     try {
-      await saveSettings.mutateAsync({ company: data });
-      settings.updateCompany(data);
+      await saveSettings.mutateAsync({ company });
+      settings.updateCompany(company);
       toast.success('Company settings saved.');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Failed to save company settings.'));

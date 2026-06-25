@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '@shared/components/ui/Input';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { Button } from '@shared/components/ui/Button';
 import { Spinner } from '@shared/components/ui/Spinner';
 import { ConfirmDialog } from '@shared/components/ui/Modal';
@@ -61,7 +61,7 @@ export function CustomerFormPage() {
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema) as Resolver<FormData>,
+    resolver: typedZodResolver<FormData>(schema),
     defaultValues: { creditDays: '30', billingStateCode: '27', active: true },
   });
 

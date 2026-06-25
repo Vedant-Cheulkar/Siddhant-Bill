@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { UserPlus, KeyRound, UserX, UserCheck } from 'lucide-react';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/Card';
 import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
@@ -66,12 +66,12 @@ export function UsersTab() {
   const [resetUser, setResetUser] = useState<UserSummary | null>(null);
 
   const inviteForm = useForm<InviteForm>({
-    resolver: zodResolver(inviteSchema) as Resolver<InviteForm>,
+    resolver: typedZodResolver<InviteForm>(inviteSchema),
     defaultValues: { role: 'ACCOUNTANT' },
   });
 
   const resetForm = useForm<ResetForm>({
-    resolver: zodResolver(resetSchema) as Resolver<ResetForm>,
+    resolver: typedZodResolver<ResetForm>(resetSchema),
   });
 
   const onInvite = (data: InviteForm) => {

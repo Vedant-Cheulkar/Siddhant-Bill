@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ChevronRight } from 'lucide-react';
+import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { Card } from '@shared/components/ui/Card';
 import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
@@ -44,7 +44,7 @@ export function ProductFormPage() {
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema) as Resolver<FormData>,
+    resolver: typedZodResolver<FormData>(schema),
     defaultValues: { salePrice: '0', active: true },
   });
 
