@@ -74,6 +74,8 @@ src/
 │   └── http/
 │       ├── apiClient.ts     # Axios + JWT interceptor
 │       └── queryClient.ts   # React Query defaults
+├── pwa/
+│   └── registerPwa.ts       # Service worker registration (production)
 └── test/mocks/              # MSW handlers for offline demo / tests
 ```
 
@@ -689,6 +691,22 @@ npm run dev
 | `npm run build` | both | Production build |
 | `npm test` | frontend | Vitest unit tests |
 | `npm run test:e2e` | frontend | Playwright E2E |
+| `npm run preview` | frontend | Test production build locally (includes PWA) |
+| `npm run icons:pwa` | frontend | Regenerate PWA icons from `public/favicon.svg` |
+
+### Progressive Web App (PWA)
+
+The frontend is an **installable PWA** via `vite-plugin-pwa`:
+
+| Aspect | Behavior |
+|--------|----------|
+| **Cached** | JS, CSS, HTML, icons (app shell) |
+| **Not cached** | API calls to Render (`VITE_API_BASE_URL`) — always live data |
+| **Updates** | `registerType: 'prompt'` — user sees reload banner after deploy |
+| **Local dev** | PWA service worker disabled (`devOptions.enabled: false`); MSW mocks unaffected |
+| **Test PWA locally** | `npm run build && npm run preview` then open DevTools → Application → Manifest |
+
+Production URL: **https://siddhant-bill.vercel.app** — Vercel serves `vercel.json` headers for service worker cache busting.
 
 ---
 

@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, FileText, Search } from 'lucide-react';
+import { Bell, ChevronDown, ChevronRight, FileText, Menu, Search } from 'lucide-react';
 import { Button } from '@shared/components/ui/Button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@features/auth/store/authStore';
@@ -25,9 +25,10 @@ function getPageLabel(pathname: string): string {
 
 interface HeaderProps {
   onOpenSearch?: () => void;
+  onOpenMenu?: () => void;
 }
 
-export function Header({ onOpenSearch }: HeaderProps) {
+export function Header({ onOpenSearch, onOpenMenu }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
@@ -43,25 +44,34 @@ export function Header({ onOpenSearch }: HeaderProps) {
   const pageLabel = getPageLabel(location.pathname);
 
   return (
-    <header className="h-14 flex items-center justify-between gap-4 px-6 bg-bg border-b border-border shrink-0">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs min-w-0">
-        <ol className="flex items-center gap-1.5">
-          <li>
-            <button
-              onClick={() => navigate('/')}
-              className="text-muted font-medium hover:text-fg transition-colors"
-            >
-              {companyName}
-            </button>
-          </li>
-          <li aria-hidden="true"><ChevronRight size={12} className="text-muted shrink-0" /></li>
-          <li><span className="font-semibold text-fg truncate">{pageLabel}</span></li>
-        </ol>
-      </nav>
+    <header className="h-14 flex items-center justify-between gap-3 px-4 lg:px-6 bg-bg border-b border-border shrink-0 safe-top">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-surface text-fg hover:bg-bg transition-colors shrink-0"
+          aria-label="Open navigation menu"
+        >
+          <Menu size={18} />
+        </button>
 
-      {/* Right: actions */}
-      <div className="flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs min-w-0">
+          <ol className="flex items-center gap-1.5 min-w-0">
+            <li className="min-w-0">
+              <button
+                onClick={() => navigate('/')}
+                className="text-muted font-medium hover:text-fg transition-colors truncate max-w-[8rem] sm:max-w-none"
+              >
+                {companyName}
+              </button>
+            </li>
+            <li aria-hidden="true"><ChevronRight size={12} className="text-muted shrink-0" /></li>
+            <li className="min-w-0"><span className="font-semibold text-fg truncate">{pageLabel}</span></li>
+          </ol>
+        </nav>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onOpenSearch}
           className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-lg text-xs text-muted hover:border-border-strong hover:text-fg transition-all"
@@ -72,13 +82,14 @@ export function Header({ onOpenSearch }: HeaderProps) {
           <span className="ml-1 font-mono bg-bg border border-border rounded px-1 text-2xs">⌘K</span>
         </button>
 
-        <Button size="sm" onClick={() => navigate('/invoices/new')}>
+        <Button size="sm" onClick={() => navigate('/invoices/new')} className="hidden sm:inline-flex">
           <FileText size={13} />
-          New Invoice
+          <span className="hidden md:inline">New Invoice</span>
+          <span className="md:hidden">New</span>
         </Button>
 
         <button
-          className="flex items-center gap-1 px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs font-medium hover:bg-bg transition-all"
+          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs font-medium hover:bg-bg transition-all"
           aria-label="Select language"
         >
           EN <ChevronDown size={12} />

@@ -18,6 +18,7 @@
 9. [Quick Search (⌘K)](#9-quick-search-k)
 10. [Settings](#10-settings)
 11. [Tips & Shortcuts](#11-tips--shortcuts)
+12. [Install as App (PWA)](#12-install-as-app-pwa)
 
 ---
 
@@ -33,7 +34,7 @@ With this app you can:
 - Create and manage **tax invoices** with GST-ready line items
 - View **reports and dashboard** summaries of your billing activity
 
-Everything is accessed through a browser — no software to install on your computer (except a modern web browser like Chrome or Edge).
+Everything is accessed through a browser, or you can **install it as an app** on your phone or computer (see [Install as App](#12-install-as-app-pwa)).
 
 ---
 
@@ -543,6 +544,38 @@ Grand total = Sum of all line totals
 | 7 | Reports | Reports | KPIs + 5-year trend chart |
 | 8 | Settings | Settings | Company, invoice, tax, profile |
 | 9 | Quick Search | `Ctrl+K` / `⌘K` | Navigate & find records fast |
+| 10 | Install app | Browser install prompt / menu | Add to home screen for quick access |
+
+---
+
+## 12. Install as App (PWA)
+
+You can install Siddhant Bill like a native app for faster access. **You still need internet** for live billing data — the install mainly gives you a home-screen shortcut and faster loading.
+
+### Desktop (Chrome / Edge)
+
+1. Open the app URL (e.g. **https://siddhant-bill.vercel.app**).
+2. Click the **Install** banner at the top, or use the browser menu → **Install Siddhant Bill** / **Install app**.
+3. Launch it from your desktop or Start menu.
+
+### Android (Chrome)
+
+1. Open the app in Chrome.
+2. Tap the menu (⋮) → **Install app** or **Add to Home screen**.
+3. Open from your home screen like any other app.
+
+### iPhone / iPad (Safari)
+
+1. Open the app in **Safari** (install is not supported in Chrome on iOS).
+2. Tap **Share** → **Add to Home Screen**.
+3. Name it **Siddhant Bill** and tap **Add**.
+
+### After installing
+
+- Sign in with your normal email and password.
+- Use the **hamburger menu** (☰) on small screens to open navigation.
+- If you see **Update available**, tap **Reload** to get the latest version.
+- When offline, an amber banner appears — reconnect to view or edit billing data.
 
 ---
 

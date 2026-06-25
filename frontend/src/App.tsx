@@ -38,11 +38,16 @@ import { WorkOrdersPage } from '@features/work-orders/pages/WorkOrdersPage';
 import { WorkOrderFormPage } from '@features/work-orders/pages/WorkOrderFormPage';
 import { NotFoundPage } from './features/placeholders/NotFoundPage';
 import { SettingsPage } from '@features/settings/pages/SettingsPage';
+import { OfflineBanner } from '@shared/components/pwa/OfflineBanner';
+import { PwaUpdatePrompt } from '@shared/components/pwa/PwaUpdatePrompt';
+import { InstallPrompt } from '@shared/components/pwa/InstallPrompt';
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="top-right" richColors closeButton />
+      <OfflineBanner />
+      <InstallPrompt />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -71,6 +76,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <PwaUpdatePrompt />
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );

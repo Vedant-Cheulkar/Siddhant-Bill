@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { logout as apiLogout } from '@features/auth/api/auth.api';
 import { toast } from 'sonner';
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { to: '/',             icon: LayoutDashboard, label: 'Overview'     },
   { to: '/item-groups',  icon: Layers,          label: 'Item Groups'  },
   { to: '/work-orders',  icon: Wrench,          label: 'Work Orders'  },
@@ -18,11 +18,22 @@ const NAV_ITEMS = [
   { to: '/reports',      icon: BarChart2,       label: 'Reports'      },
 ];
 
-function NavItem({ to, icon: Icon, label }: { to: string; icon: React.ElementType; label: string }) {
+function NavItem({
+  to,
+  icon: Icon,
+  label,
+  onNavigate,
+}: {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  onNavigate?: () => void;
+}) {
   return (
     <NavLink
       to={to}
       end={to === '/'}
+      onClick={onNavigate}
       className={({ isActive }) =>
         cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
@@ -38,7 +49,12 @@ function NavItem({ to, icon: Icon, label }: { to: string; icon: React.ElementTyp
   );
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ className, onNavigate }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -47,6 +63,7 @@ export function Sidebar() {
     onSettled: () => {
       logout();
       navigate('/login', { replace: true });
+      onNavigate?.();
     },
     onError: () => toast.error('Logout failed — please try again.'),
   });
@@ -59,8 +76,12 @@ export function Sidebar() {
     .toUpperCase() ?? 'U';
 
   return (
-    <aside className="w-[210px] min-h-screen bg-bg border-r border-border flex flex-col py-5 px-3 shrink-0">
-      {/* Logo */}
+    <aside
+      className={cn(
+        'w-[210px] min-h-full bg-bg border-r border-border flex flex-col py-5 px-3 shrink-0 safe-top safe-bottom',
+        className,
+      )}
+    >
       <div className="flex items-center gap-3 px-2 mb-7">
         <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shrink-0 shadow-sm">
           <span className="text-[9px] font-bold text-white text-center leading-tight select-none">SL</span>
@@ -71,31 +92,26 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Search */}
       <div className="mb-5 px-1">
         <div className="flex items-center gap-2 bg-surface rounded-xl px-3 py-2 border border-border text-muted text-xs cursor-pointer hover:border-border-strong transition-all">
           <Search size={12} className="shrink-0" />
           <span>Quick search…</span>
-          <span className="ml-auto text-2xs bg-bg rounded px-1 py-0.5 border border-border font-mono">⌘K</span>
+          <span className="ml-auto text-2xs bg-bg rounded px-1 py-0.5 border border-border font-mono hidden lg:inline">⌘K</span>
         </div>
       </div>
 
-      {/* Nav label */}
       <p className="px-3 mb-1.5 text-2xs font-semibold text-muted uppercase tracking-widest">Menu</p>
 
-      {/* Nav */}
       <nav className="flex-1 space-y-0.5">
         {NAV_ITEMS.map(({ to, icon, label }) => (
-          <NavItem key={to} to={to} icon={icon} label={label} />
+          <NavItem key={to} to={to} icon={icon} label={label} onNavigate={onNavigate} />
         ))}
       </nav>
 
-      {/* Divider */}
       <div className="my-3 border-t border-border" />
 
-      {/* Bottom nav */}
       <div className="space-y-0.5 mb-3">
-        <NavItem to="/settings" icon={Settings} label="Settings" />
+        <NavItem to="/settings" icon={Settings} label="Settings" onNavigate={onNavigate} />
         <button
           onClick={() => doLogout()}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted hover:text-red-600 hover:bg-red-50 transition-all"
@@ -105,7 +121,6 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* User */}
       <div className="flex items-center gap-2.5 px-2 py-2.5 rounded-xl bg-surface border border-border min-w-0">
         <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-xs font-bold text-white shrink-0 select-none shadow-sm">
           {initials}
