@@ -59,7 +59,8 @@ export function buildInvoicePdf(input: PdfInvoiceInput): Promise<Buffer> {
     doc.moveTo(50, tableTop + 14).lineTo(545, tableTop + 14).stroke('#ccc');
 
     let y = tableTop + 22;
-    for (const item of invoice.items ?? []) {
+    const lineItems = Array.from(invoice.items ?? []);
+    for (const item of lineItems) {
       if (y > 700) {
         doc.addPage();
         y = 50;
