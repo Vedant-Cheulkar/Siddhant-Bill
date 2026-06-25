@@ -7,6 +7,7 @@ import { CUSTOMER_KEYS } from '../queryKeys';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import type { CustomerRequest } from '../types/customer.types';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 
 export function useCustomers(params: CustomerListParams) {
   return useQuery({
@@ -31,9 +32,11 @@ export function useCreateCustomer() {
     mutationFn: (data: CustomerRequest) => createCustomer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CUSTOMER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: [...CUSTOMER_KEYS.all, 'lookup'] });
       toast.success('Customer created successfully.');
       navigate('/customers');
     },
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to create customer.')),
   });
 }
 
@@ -44,10 +47,12 @@ export function useUpdateCustomer(id: string) {
     mutationFn: (data: CustomerRequest) => updateCustomer(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CUSTOMER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: [...CUSTOMER_KEYS.all, 'lookup'] });
       queryClient.invalidateQueries({ queryKey: CUSTOMER_KEYS.detail(id) });
       toast.success('Customer updated successfully.');
       navigate('/customers');
     },
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update customer.')),
   });
 }
 
@@ -58,9 +63,10 @@ export function useDeleteCustomer(id: string) {
     mutationFn: () => deleteCustomer(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CUSTOMER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: [...CUSTOMER_KEYS.all, 'lookup'] });
       toast.success('Customer deleted.');
       navigate('/customers');
     },
-    onError: () => toast.error('Failed to delete customer.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to delete customer.')),
   });
 }

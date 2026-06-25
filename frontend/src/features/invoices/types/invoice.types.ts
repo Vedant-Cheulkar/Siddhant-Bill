@@ -12,6 +12,7 @@ export interface InvoiceLineItemRequest {
 
 export interface InvoiceCreateRequest {
   customerId: string;
+  workOrderId?: string;
   displayNumber?: string;
   invoiceDate: string;
   dueDate?: string;

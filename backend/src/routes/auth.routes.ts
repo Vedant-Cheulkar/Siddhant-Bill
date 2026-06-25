@@ -12,6 +12,14 @@ import {
   toAuthUser,
 } from '../middleware/auth.js';
 import { env } from '../config/env.js';
+import { validatePassword } from '../utils/password.js';
+import { PasswordReset } from '../models/PasswordReset.js';
+import { normalizeEmail, validateEmail } from '../utils/email.js';
+import {
+  checkLoginRateLimit,
+  clearLoginAttempts,
+  recordFailedLogin,
+} from '../middleware/loginRateLimit.js';
 
 const router = Router();
 
@@ -34,10 +42,19 @@ router.post(
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
-    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    const normalizedEmail = email.trim().toLowerCase();
+    const rateLimitError = checkLoginRateLimit(normalizedEmail);
+    if (rateLimitError) return res.status(429).json({ message: rateLimitError });
+
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      recordFailedLogin(normalizedEmail);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+    if (user.active === false) {
+      return res.status(403).json({ message: 'Account is deactivated. Contact your administrator.' });
+    }
+    clearLoginAttempts(normalizedEmail);
     const authUser = toAuthUser(user);
     const accessToken = signAccessToken(authUser);
     const refreshToken = await issueRefreshToken(user._id);
@@ -57,6 +74,9 @@ router.get(
   asyncHandler(async (req, res) => {
     const user = await User.findById(req.user!.id);
     if (!user) return res.status(401).json({ message: 'User not found' });
+    if (user.active === false) {
+      return res.status(403).json({ message: 'Account is deactivated. Contact your administrator.' });
+    }
     const authUser = toAuthUser(user);
     res.json(
       ok({
@@ -85,6 +105,9 @@ router.post(
     await stored.save();
     const user = await User.findById(stored.userId);
     if (!user) return res.status(401).json({ message: 'User not found' });
+    if (user.active === false) {
+      return res.status(403).json({ message: 'Account is deactivated. Contact your administrator.' });
+    }
     const authUser = toAuthUser(user);
     res.json(
       ok({
@@ -108,6 +131,112 @@ router.post(
       );
     }
     res.json(ok(null, 'Logged out successfully'));
+  }),
+);
+
+router.post(
+  '/change-password',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body as {
+      currentPassword?: string;
+      newPassword?: string;
+    };
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new password are required' });
+    }
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) return res.status(400).json({ message: passwordError });
+
+    const user = await User.findById(req.user!.id);
+    if (!user) return res.status(401).json({ message: 'User not found' });
+    if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.updatedAt = new Date();
+    await user.save();
+    await RefreshToken.updateMany({ userId: user._id, revokedAt: null }, { revokedAt: new Date() });
+
+    res.json(ok(null, 'Password updated successfully'));
+  }),
+);
+
+router.post(
+  '/forgot-password',
+  asyncHandler(async (req, res) => {
+    const { email } = req.body as { email?: string };
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    const normalizedEmail = normalizeEmail(email);
+    const emailError = validateEmail(normalizedEmail);
+    if (emailError) return res.status(400).json({ message: emailError });
+
+    const user = await User.findOne({ email: normalizedEmail });
+    const genericMessage =
+      'If an account exists for this email, use the reset link below or ask your administrator.';
+
+    if (!user || user.active === false) {
+      return res.json(ok({ message: genericMessage }));
+    }
+
+    const rawToken = randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    await PasswordReset.updateMany({ userId: user._id, usedAt: null }, { usedAt: new Date() });
+    await PasswordReset.create({
+      _id: randomUUID(),
+      tokenHash: hashToken(rawToken),
+      userId: user._id,
+      expiresAt,
+    });
+
+    const resetUrl = `${env.passwordResetBaseUrl.replace(/\/$/, '')}/reset-password?token=${rawToken}`;
+
+    res.json(
+      ok({
+        message: genericMessage,
+        resetUrl,
+        expiresAt: expiresAt.toISOString(),
+      }),
+    );
+  }),
+);
+
+router.post(
+  '/reset-password',
+  asyncHandler(async (req, res) => {
+    const { token, newPassword } = req.body as { token?: string; newPassword?: string };
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token and new password are required' });
+    }
+
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) return res.status(400).json({ message: passwordError });
+
+    const stored = await PasswordReset.findOne({
+      tokenHash: hashToken(token),
+      usedAt: null,
+      expiresAt: { $gt: new Date() },
+    });
+    if (!stored) return res.status(400).json({ message: 'Invalid or expired reset link' });
+
+    const user = await User.findById(stored.userId);
+    if (!user || user.active === false) {
+      return res.status(400).json({ message: 'Invalid or expired reset link' });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.updatedAt = new Date();
+    await user.save();
+
+    stored.usedAt = new Date();
+    await stored.save();
+    await RefreshToken.updateMany({ userId: user._id, revokedAt: null }, { revokedAt: new Date() });
+
+    res.json(ok(null, 'Password reset successfully. You can sign in with your new password.'));
   }),
 );
 

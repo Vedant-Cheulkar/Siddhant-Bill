@@ -14,6 +14,11 @@ export const listCustomers = async (params: CustomerListParams = {}): Promise<Pa
   return res.data.data;
 };
 
+export const listCustomerLookup = async (): Promise<Array<{ id: string; name: string }>> => {
+  const res = await apiClient.get('/customers/lookup');
+  return res.data.data;
+};
+
 export const getCustomer = async (id: string): Promise<CustomerResponse> => {
   const res = await apiClient.get(`/customers/${id}`);
   return res.data.data;

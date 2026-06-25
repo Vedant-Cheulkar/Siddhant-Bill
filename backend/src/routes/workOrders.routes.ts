@@ -3,13 +3,25 @@ import { randomUUID } from 'crypto';
 import { Customer } from '../models/Customer.js';
 import { WorkOrder, toWorkOrderDetail, toWorkOrderSummary } from '../models/WorkOrder.js';
 import { ok } from '../utils/apiResponse.js';
-import { paginate, parsePageQuery } from '../utils/pagination.js';
+import { parsePageQuery } from '../utils/pagination.js';
+import { buildPageResult, escapeRegex } from '../utils/mongoPaginate.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { calcGrandTotal, calcLineTotal, type LineItemInput } from '../utils/calc.js';
+import { nextWorkOrderNumber } from '../utils/sequence.js';
+import { validateLineItems } from '../utils/lineItems.js';
+import {
+  assertWorkOrderDeletable,
+  assertWorkOrderEditable,
+  assertWorkOrderTransition,
+  type WorkOrderStatus,
+} from '../utils/statusGuards.js';
 
 const router = Router();
 router.use(requireAuth);
+
+const canRead = requirePermission('INVOICE_READ');
+const canWrite = requirePermission('INVOICE_WRITE');
 
 function mapItems(raw: Array<Record<string, unknown>>) {
   return raw.map((it, i) => {
@@ -32,38 +44,54 @@ function mapItems(raw: Array<Record<string, unknown>>) {
   });
 }
 
-async function nextOrderNumber(orgId: string) {
-  const count = await WorkOrder.countDocuments({ organizationId: orgId });
-  return `WO-2026-${String(count + 1).padStart(3, '0')}`;
-}
-
 router.get(
   '/',
+  canRead,
   asyncHandler(async (req, res) => {
     const orgId = req.user!.organizationId;
     const { page, size } = parsePageQuery(req.query as Record<string, unknown>);
     const status = req.query.status as string | undefined;
-    const q = String(req.query.q ?? '').toLowerCase();
+    const q = String(req.query.q ?? '').trim();
 
     const filter: Record<string, unknown> = { organizationId: orgId, deletedAt: null };
     if (status) filter.status = status;
-
-    let docs = await WorkOrder.find(filter).lean();
     if (q) {
-      docs = docs.filter(
-        (w) =>
-          w.orderNumber.toLowerCase().includes(q) ||
-          (w.customerName ?? '').toLowerCase().includes(q) ||
-          (w.vehicleRef ?? '').toLowerCase().includes(q),
-      );
+      const pattern = escapeRegex(q);
+      filter.$or = [
+        { orderNumber: { $regex: pattern, $options: 'i' } },
+        { customerName: { $regex: pattern, $options: 'i' } },
+        { vehicleRef: { $regex: pattern, $options: 'i' } },
+      ];
     }
-    docs.sort((a, b) => b.serviceDate.localeCompare(a.serviceDate));
-    res.json(ok(paginate(docs.map((d) => toWorkOrderSummary(d as never)), page, size)));
+
+    const safeSize = Math.min(Math.max(size, 1), 100);
+    const safePage = Math.max(page, 0);
+
+    const [docs, total] = await Promise.all([
+      WorkOrder.find(filter)
+        .sort({ serviceDate: -1 })
+        .skip(safePage * safeSize)
+        .limit(safeSize)
+        .lean(),
+      WorkOrder.countDocuments(filter),
+    ]);
+
+    res.json(
+      ok(
+        buildPageResult(
+          docs.map((d) => toWorkOrderSummary(d as never)),
+          safePage,
+          safeSize,
+          total,
+        ),
+      ),
+    );
   }),
 );
 
 router.get(
   '/:id',
+  canRead,
   asyncHandler(async (req, res) => {
     const doc = await WorkOrder.findOne({
       _id: req.params.id,
@@ -77,15 +105,19 @@ router.get(
 
 router.post(
   '/',
+  canWrite,
   asyncHandler(async (req, res) => {
     const body = req.body as Record<string, unknown>;
     const orgId = req.user!.organizationId;
     const cust = await Customer.findOne({ _id: body.customerId, organizationId: orgId, deletedAt: null });
+    if (!cust) return res.status(400).json({ message: 'Customer not found' });
+    const lineError = validateLineItems(body.items as Array<Record<string, unknown>>);
+    if (lineError) return res.status(400).json({ message: lineError });
     const items = mapItems((body.items as Array<Record<string, unknown>>) ?? []);
     const doc = await WorkOrder.create({
       _id: randomUUID(),
       organizationId: orgId,
-      orderNumber: await nextOrderNumber(orgId),
+      orderNumber: await nextWorkOrderNumber(orgId),
       status: 'OPEN',
       customerId: body.customerId,
       customerName: cust?.name,
@@ -102,12 +134,18 @@ router.post(
 
 router.put(
   '/:id',
+  canWrite,
   asyncHandler(async (req, res) => {
     const body = req.body as Record<string, unknown>;
     const orgId = req.user!.organizationId;
     const existing = await WorkOrder.findOne({ _id: req.params.id, organizationId: orgId, deletedAt: null });
     if (!existing) return res.status(404).json({ message: 'Not found' });
+    assertWorkOrderEditable(existing.status);
     const cust = await Customer.findOne({ _id: body.customerId ?? existing.customerId, organizationId: orgId });
+    const lineError = validateLineItems(
+      (body.items as Array<Record<string, unknown>>) ?? existing.items,
+    );
+    if (lineError) return res.status(400).json({ message: lineError });
     const items = mapItems((body.items as Array<Record<string, unknown>>) ?? existing.items);
     existing.customerId = String(body.customerId ?? existing.customerId);
     existing.customerName = cust?.name ?? existing.customerName;
@@ -125,26 +163,40 @@ router.put(
 
 router.patch(
   '/:id/status',
+  canWrite,
   asyncHandler(async (req, res) => {
     const { status } = req.body as { status?: string };
-    const doc = await WorkOrder.findOneAndUpdate(
-      { _id: req.params.id, organizationId: req.user!.organizationId, deletedAt: null },
-      { status, updatedAt: new Date() },
-      { new: true },
-    );
-    if (!doc) return res.status(404).json({ message: 'Not found' });
-    res.json(ok(toWorkOrderDetail(doc)));
+    if (!status) return res.status(400).json({ message: 'status is required' });
+
+    const existing = await WorkOrder.findOne({
+      _id: req.params.id,
+      organizationId: req.user!.organizationId,
+      deletedAt: null,
+    });
+    if (!existing) return res.status(404).json({ message: 'Not found' });
+
+    assertWorkOrderTransition(existing.status, status);
+    existing.status = status as WorkOrderStatus;
+    existing.updatedAt = new Date();
+    await existing.save();
+    res.json(ok(toWorkOrderDetail(existing)));
   }),
 );
 
 router.delete(
   '/:id',
+  canWrite,
   asyncHandler(async (req, res) => {
-    const doc = await WorkOrder.findOneAndUpdate(
-      { _id: req.params.id, organizationId: req.user!.organizationId, deletedAt: null },
-      { deletedAt: new Date(), updatedAt: new Date() },
-    );
+    const doc = await WorkOrder.findOne({
+      _id: req.params.id,
+      organizationId: req.user!.organizationId,
+      deletedAt: null,
+    });
     if (!doc) return res.status(404).json({ message: 'Not found' });
+    assertWorkOrderDeletable(doc.status);
+    doc.deletedAt = new Date();
+    doc.updatedAt = new Date();
+    await doc.save();
     res.status(204).send();
   }),
 );

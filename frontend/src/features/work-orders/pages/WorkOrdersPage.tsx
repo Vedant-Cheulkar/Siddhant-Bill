@@ -70,6 +70,7 @@ export function WorkOrdersPage() {
 
   const handleConvertToInvoice = (wo: WorkOrderSummaryResponse) => {
     sessionStorage.setItem('workOrderConvert', JSON.stringify({
+      workOrderId: wo.id,
       customerId: wo.customerId,
       workOrderRef: wo.orderNumber,
     }));

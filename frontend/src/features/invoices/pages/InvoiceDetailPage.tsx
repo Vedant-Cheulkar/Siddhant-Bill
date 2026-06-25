@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray, Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +22,10 @@ import {
   useDeleteInvoice,
 } from '../hooks/useInvoices';
 import { formatCurrency } from '@shared/utils/format';
+import { getWorkOrder } from '@features/work-orders/api/workOrders.api';
+import { downloadInvoicePdf } from '../api/invoices.api';
+import { getApiErrorMessage } from '@shared/utils/apiError';
+import { toast } from 'sonner';
 import { useSettingsStore } from '@features/settings/store/useSettingsStore';
 import type { InvoiceStatus } from '../types/invoice.types';
 
@@ -82,6 +86,8 @@ export function InvoiceDetailPage() {
   const [customerSearch, setCustomerSearch] = useState('');
   const [activeProductSearch, setActiveProductSearch] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const pendingWorkOrderId = useRef<string | undefined>(undefined);
   const companyStateCode = useSettingsStore((s) => s.company.stateCode);
   const defaultDueDays = useSettingsStore((s) => s.invoice.defaultDueDays);
 
@@ -131,6 +137,53 @@ export function InvoiceDetailPage() {
   const watched = watch();
 
   useEffect(() => {
+    if (isEdit) return;
+    const raw = sessionStorage.getItem('workOrderConvert');
+    if (!raw) return;
+
+    sessionStorage.removeItem('workOrderConvert');
+    try {
+      const parsed = JSON.parse(raw) as {
+        workOrderId?: string;
+        customerId?: string;
+        workOrderRef?: string;
+      };
+      if (parsed.workOrderId) pendingWorkOrderId.current = parsed.workOrderId;
+
+      if (parsed.customerId) {
+        setValue('customerId', parsed.customerId);
+      }
+      if (parsed.workOrderRef) {
+        setValue('notes', `Converted from work order ${parsed.workOrderRef}`);
+      }
+
+      if (parsed.workOrderId) {
+        getWorkOrder(parsed.workOrderId)
+          .then((wo) => {
+            reset({
+              customerId: wo.customerId,
+              invoiceDate: format(new Date(), 'yyyy-MM-dd'),
+              dueDate: format(addDays(new Date(), defaultDueDays), 'yyyy-MM-dd'),
+              currency: 'INR',
+              notes: `Converted from work order ${wo.orderNumber}`,
+              items: wo.items.map((item) => ({
+                productId: item.productId,
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                taxPercent: item.taxPercent,
+                discountPercent: item.discountPercent,
+              })),
+            });
+          })
+          .catch(() => toast.error('Could not load work order details.'));
+      }
+    } catch {
+      // ignore invalid session payload
+    }
+  }, [isEdit, setValue, reset, defaultDueDays]);
+
+  useEffect(() => {
     if (!existing) return;
     reset({
       customerId: existing.customerId,
@@ -160,6 +213,7 @@ export function InvoiceDetailPage() {
       dueDate: data.dueDate || undefined,
       currency: data.currency,
       notes: data.notes || undefined,
+      workOrderId: pendingWorkOrderId.current,
       items: data.items.map((i) => ({
         productId: i.productId || undefined,
         description: i.description,
@@ -197,6 +251,18 @@ export function InvoiceDetailPage() {
     [productPage, setValue]
   );
 
+  const handleDownloadPdf = async () => {
+    if (!existing) return;
+    setPdfLoading(true);
+    try {
+      await downloadInvoicePdf(existing.id, existing.displayNumber);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to download PDF.'));
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   if (isEdit && loadingExisting) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -233,15 +299,28 @@ export function InvoiceDetailPage() {
         {/* Status action buttons */}
         <div className="flex items-center gap-2">
           {isEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              type="button"
-              onClick={() => window.print()}
-              className="print:hidden"
-            >
-              <Printer size={13} /> Print
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={handleDownloadPdf}
+                disabled={pdfLoading}
+                className="print:hidden"
+              >
+                {pdfLoading ? <Spinner className="w-3 h-3" /> : <Printer size={13} />}
+                PDF
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => window.print()}
+                className="print:hidden"
+              >
+                <Printer size={13} /> Print
+              </Button>
+            </>
           )}
           {transitions.map((t) => (
             <Button

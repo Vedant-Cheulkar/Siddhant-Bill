@@ -11,6 +11,7 @@ import {
   type ProductRequest,
 } from '../api/products.api';
 import { PRODUCT_KEYS } from '../queryKeys';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 
 export function useProducts(params: ProductListParams = {}) {
   return useQuery({
@@ -38,7 +39,7 @@ export function useCreateProduct() {
       toast.success('Product created');
       navigate(`/item-groups`);
     },
-    onError: () => toast.error('Failed to create product'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to create product')),
   });
 }
 
@@ -51,7 +52,7 @@ export function useUpdateProduct(id: string) {
       qc.invalidateQueries({ queryKey: PRODUCT_KEYS.all });
       toast.success('Product updated');
     },
-    onError: () => toast.error('Failed to update product'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update product')),
   });
 }
 

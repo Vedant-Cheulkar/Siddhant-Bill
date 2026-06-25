@@ -24,6 +24,8 @@ if (import.meta.env.VITE_DEV_BYPASS_AUTH === 'true') {
   }
 }
 import { LoginPage } from '@features/auth/pages/LoginPage';
+import { ForgotPasswordPage } from '@features/auth/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@features/auth/pages/ResetPasswordPage';
 import { DashboardPage } from '@features/dashboard/pages/DashboardPage';
 import { InvoiceListPage } from '@features/invoices/pages/InvoiceListPage';
 import { InvoiceDetailPage } from '@features/invoices/pages/InvoiceDetailPage';
@@ -44,6 +46,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>

@@ -40,6 +40,8 @@ export async function runSeed(): Promise<void> {
     fullName: DEFAULT_USER.fullName,
     passwordHash,
     organizationId: ORGANIZATION_ID,
+    role: 'ADMIN',
+    active: true,
   });
 
   await Customer.insertMany(

@@ -3,35 +3,51 @@ import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Building2, FileText, BadgePercent, User, Lock, ChevronRight } from 'lucide-react';
+import { Building2, FileText, BadgePercent, User, Lock, ChevronRight, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/Card';
 import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
 import { PageHeader } from '@shared/components/widgets/PageHeader';
 import { useAuthStore } from '@features/auth/store/authStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useOrgSettings, useSaveSettings } from '../hooks/useOrgSettings';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 import { cn } from '@shared/utils/cn';
+import {
+  refineIndianTaxIds,
+  zIndianStateCode,
+  zOptionalEmail,
+  zOptionalGstin,
+  zOptionalIndianPhone,
+  zOptionalIndianStateCode,
+  zOptionalPan,
+} from '@shared/validation/india.schemas';
+import { UsersTab } from '@features/users/components/UsersTab';
+import { ChangePasswordModal } from '@features/users/components/ChangePasswordModal';
 
-type Tab = 'company' | 'invoice' | 'tax' | 'profile';
+type Tab = 'company' | 'invoice' | 'tax' | 'users' | 'profile';
 
-const tabs: { label: string; value: Tab; icon: React.ReactNode }[] = [
+const baseTabs: { label: string; value: Tab; icon: React.ReactNode; adminOnly?: boolean }[] = [
   { label: 'Company',  value: 'company',  icon: <Building2 size={14} /> },
   { label: 'Invoice',  value: 'invoice',  icon: <FileText size={14} /> },
   { label: 'Tax',      value: 'tax',      icon: <BadgePercent size={14} /> },
+  { label: 'Users',    value: 'users',    icon: <Users size={14} />, adminOnly: true },
   { label: 'Profile',  value: 'profile',  icon: <User size={14} /> },
 ];
 
 /* ── Company schema ──────────────────────────────────────────── */
-const companySchema = z.object({
-  name:       z.string().min(2, 'Required'),
-  gstin:      z.string().optional(),
-  pan:        z.string().optional(),
-  address:    z.string().optional(),
-  city:       z.string().optional(),
-  stateCode:  z.string().length(2, 'Must be 2 digits').optional().or(z.literal('')),
-  phone:      z.string().optional(),
-  email:      z.string().email('Invalid email').optional().or(z.literal('')),
-});
+const companySchema = refineIndianTaxIds(
+  z.object({
+    name:      z.string().min(2, 'Company name is required'),
+    gstin:     zOptionalGstin,
+    pan:       zOptionalPan,
+    address:   z.string().max(500, 'Max 500 characters').optional(),
+    city:      z.string().max(100, 'Max 100 characters').optional(),
+    stateCode: zOptionalIndianStateCode,
+    phone:     zOptionalIndianPhone,
+    email:     zOptionalEmail,
+  }),
+);
 type CompanyForm = z.infer<typeof companySchema>;
 
 /* ── Invoice schema ──────────────────────────────────────────── */
@@ -64,8 +80,13 @@ function ProfileRow({ label, value }: { label: string; value: string }) {
 /* ── Main component ──────────────────────────────────────────── */
 export function SettingsPage() {
   const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.roles?.includes('ADMIN') ?? false;
+  const tabs = baseTabs.filter((t) => !t.adminOnly || isAdmin);
   const settings = useSettingsStore();
+  const { isLoading: settingsLoading } = useOrgSettings();
+  const saveSettings = useSaveSettings();
   const [activeTab, setActiveTab] = useState<Tab>('company');
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
   /* Company form */
   const companyForm = useForm<CompanyForm>({
@@ -90,24 +111,41 @@ export function SettingsPage() {
     defaultValues: { defaultRate: settings.tax.defaultRate },
   });
 
-  const saveCompany = (data: CompanyForm) => {
-    settings.updateCompany(data);
-    toast.success('Company settings saved.');
+  const saveCompany = async (data: CompanyForm) => {
+    try {
+      await saveSettings.mutateAsync({ company: data });
+      settings.updateCompany(data);
+      toast.success('Company settings saved.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save company settings.'));
+    }
   };
 
-  const saveInvoice = (data: InvoiceForm) => {
-    settings.updateInvoice({
-      prefix:         data.prefix,
+  const saveInvoice = async (data: InvoiceForm) => {
+    const invoice = {
+      prefix: data.prefix,
       startingNumber: Number(data.startingNumber),
       defaultDueDays: Number(data.defaultDueDays),
-      terms:          data.terms ?? '',
-    });
-    toast.success('Invoice settings saved.');
+      terms: data.terms ?? '',
+    };
+    try {
+      await saveSettings.mutateAsync({ invoice });
+      settings.updateInvoice(invoice);
+      toast.success('Invoice settings saved.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save invoice settings.'));
+    }
   };
 
-  const saveTax = (data: TaxForm) => {
-    settings.updateTax({ defaultRate: Number(data.defaultRate) });
-    toast.success('Tax settings saved.');
+  const saveTax = async (data: TaxForm) => {
+    const tax = { defaultRate: Number(data.defaultRate) };
+    try {
+      await saveSettings.mutateAsync({ tax });
+      settings.updateTax(tax);
+      toast.success('Tax settings saved.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save tax settings.'));
+    }
   };
 
   return (
@@ -155,12 +193,18 @@ export function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="GSTIN"
-                  hint="15-character GST Identification Number"
+                  placeholder="27AABCM1234F1Z5"
+                  error={companyForm.formState.errors.gstin?.message}
+                  maxLength={15}
+                  className="uppercase font-mono"
                   {...companyForm.register('gstin')}
                 />
                 <Input
                   label="PAN"
-                  hint="Permanent Account Number"
+                  placeholder="ABCDE1234F"
+                  error={companyForm.formState.errors.pan?.message}
+                  maxLength={10}
+                  className="uppercase font-mono"
                   {...companyForm.register('pan')}
                 />
               </div>
@@ -175,14 +219,20 @@ export function SettingsPage() {
                 />
                 <Input
                   label="State Code"
-                  hint="2-digit state code (e.g. 27)"
+                  hint="2-digit GST state code (e.g. 27 = Maharashtra)"
                   error={companyForm.formState.errors.stateCode?.message}
+                  maxLength={2}
+                  inputMode="numeric"
                   {...companyForm.register('stateCode')}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Phone"
+                  hint="10-digit Indian mobile (starts with 6–9)"
+                  error={companyForm.formState.errors.phone?.message}
+                  inputMode="tel"
+                  maxLength={14}
                   {...companyForm.register('phone')}
                 />
                 <Input
@@ -195,7 +245,7 @@ export function SettingsPage() {
             </CardContent>
           </Card>
           <div className="flex justify-end">
-            <Button type="submit" disabled={companyForm.formState.isSubmitting}>
+            <Button type="submit" disabled={companyForm.formState.isSubmitting || settingsLoading || saveSettings.isPending}>
               Save Company Settings
             </Button>
           </div>
@@ -305,6 +355,9 @@ export function SettingsPage() {
         </form>
       )}
 
+      {/* Users tab (admin only) */}
+      {activeTab === 'users' && isAdmin && <UsersTab />}
+
       {/* Profile tab */}
       {activeTab === 'profile' && (
         <div className="space-y-4">
@@ -331,15 +384,21 @@ export function SettingsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <button className="flex items-center justify-between w-full py-3 text-sm text-fg hover:text-muted transition-colors group">
+              <button
+                type="button"
+                onClick={() => setPasswordOpen(true)}
+                className="flex items-center justify-between w-full py-3 text-sm text-fg hover:text-muted transition-colors group"
+              >
                 <span>Change Password</span>
                 <ChevronRight size={14} className="text-muted group-hover:text-fg transition-colors" />
               </button>
               <p className="text-xs text-muted mt-1">
-                Password changes are managed through your identity provider.
+                Update your password. You will be signed out after changing it.
               </p>
             </CardContent>
           </Card>
+
+          <ChangePasswordModal open={passwordOpen} onClose={() => setPasswordOpen(false)} />
 
           <div className="flex items-center gap-1.5 text-xs text-muted px-1">
             <span>Siddhant Logistics Billing Suite · v1.0</span>

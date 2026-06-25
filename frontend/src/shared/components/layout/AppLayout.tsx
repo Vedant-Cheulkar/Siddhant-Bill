@@ -4,8 +4,11 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { CommandPalette } from '@shared/components/widgets/CommandPalette';
 
+import { useOrgSettings } from '@features/settings/hooks/useOrgSettings';
+
 export function AppLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  useOrgSettings();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

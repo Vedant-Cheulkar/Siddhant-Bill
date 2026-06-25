@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,10 @@ import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
 import { Spinner } from '@shared/components/ui/Spinner';
 import { login as apiLogin, getProfile } from '../api/auth.api';
+import { getSettings } from '@features/settings/api/settings.api';
 import { useAuthStore } from '../store/authStore';
+import { useSettingsStore } from '@features/settings/store/useSettingsStore';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 
 const schema = z.object({
   email:    z.string().email('Enter a valid email'),
@@ -28,6 +31,7 @@ const FEATURES = [
 export function LoginPage() {
   const navigate  = useNavigate();
   const { setTokens, setUser } = useAuthStore();
+  const hydrateSettings = useSettingsStore((s) => s.hydrate);
 
   const {
     register,
@@ -41,9 +45,11 @@ export function LoginPage() {
       setTokens(tokens.accessToken, tokens.refreshToken);
       const profile = await getProfile();
       setUser(profile);
+      const settings = await getSettings();
+      hydrateSettings(settings);
     },
     onSuccess: () => navigate('/', { replace: true }),
-    onError:   () => toast.error('Invalid email or password.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Invalid email or password.')),
   });
 
   return (
@@ -119,6 +125,11 @@ export function LoginPage() {
               error={errors.password?.message}
               {...register('password')}
             />
+            <div className="flex justify-end -mt-2">
+              <Link to="/forgot-password" className="text-xs text-accent hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
               {isPending && <Spinner className="w-4 h-4" />}
               {isPending ? 'Signing in…' : 'Sign in'}

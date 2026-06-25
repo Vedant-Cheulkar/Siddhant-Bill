@@ -12,6 +12,7 @@ import {
 } from '../api/workOrders.api';
 import { WORK_ORDER_KEYS } from '../queryKeys';
 import type { WorkOrderRequest, WorkOrderStatus } from '../types/workOrder.types';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 
 export function useWorkOrders(params: WorkOrderListParams = {}) {
   return useQuery({
@@ -39,7 +40,7 @@ export function useCreateWorkOrder() {
       toast.success('Work order created.');
       navigate(`/work-orders/${wo.id}`);
     },
-    onError: () => toast.error('Failed to create work order.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to create work order.')),
   });
 }
 
@@ -52,7 +53,7 @@ export function useUpdateWorkOrder(id: string) {
       qc.invalidateQueries({ queryKey: WORK_ORDER_KEYS.all });
       toast.success('Work order updated.');
     },
-    onError: () => toast.error('Failed to update work order.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update work order.')),
   });
 }
 
@@ -66,7 +67,7 @@ export function useDeleteWorkOrder() {
       toast.success('Work order deleted.');
       navigate('/work-orders');
     },
-    onError: () => toast.error('Failed to delete work order.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to delete work order.')),
   });
 }
 
@@ -80,6 +81,6 @@ export function useUpdateWorkOrderStatus() {
       qc.invalidateQueries({ queryKey: WORK_ORDER_KEYS.all });
       toast.success(`Status updated to ${wo.status.replace('_', ' ').toLowerCase()}.`);
     },
-    onError: () => toast.error('Failed to update status.'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update status.')),
   });
 }

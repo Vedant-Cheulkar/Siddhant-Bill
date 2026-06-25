@@ -10,12 +10,13 @@ import { Button } from '@shared/components/ui/Button';
 import { Spinner } from '@shared/components/ui/Spinner';
 import { ConfirmDialog } from '@shared/components/ui/Modal';
 import { useProduct, useCreateProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
+import { zOptionalHsnSac } from '@shared/validation/india.schemas';
 
 const schema = z.object({
   sku:         z.string().min(1, 'Required').max(50, 'Max 50 chars'),
   name:        z.string().min(1, 'Required').max(300, 'Max 300 chars'),
   description: z.string().max(1000).optional(),
-  hsnSac:      z.string().max(20).optional(),
+  hsnSac:      zOptionalHsnSac,
   salePrice:   z.string().refine(
     (v) => !isNaN(Number(v)) && Number(v) >= 0,
     { message: 'Must be a non-negative number' }
@@ -133,8 +134,10 @@ export function ProductFormPage() {
             />
             <Input
               label="HSN / SAC Code"
-              hint="For GST compliance"
+              hint="4, 6, or 8 digits (e.g. 998814 for services)"
               error={errors.hsnSac?.message}
+              maxLength={8}
+              inputMode="numeric"
               {...register('hsnSac')}
             />
           </div>

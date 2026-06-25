@@ -10,24 +10,34 @@ import { ConfirmDialog } from '@shared/components/ui/Modal';
 import { useCreateCustomer, useUpdateCustomer, useDeleteCustomer, useCustomer } from '../hooks/useCustomers';
 import type { CustomerRequest } from '../types/customer.types';
 import { cn } from '@shared/utils/cn';
+import {
+  refineIndianTaxIds,
+  zIndianStateCode,
+  zOptionalEmail,
+  zOptionalGstin,
+  zOptionalIndianPhone,
+  zOptionalPan,
+} from '@shared/validation/india.schemas';
 
-const schema = z.object({
-  code:             z.string().min(2).max(30).regex(/^[A-Za-z0-9_-]+$/, 'Letters, numbers, _ and - only'),
-  name:             z.string().min(2).max(300),
-  billingStateCode: z.string().length(2, 'Must be exactly 2 characters'),
-  gstin:            z.string().optional(),
-  pan:              z.string().max(10).optional(),
-  email:            z.string().email('Invalid email').optional().or(z.literal('')),
-  phone:            z.string().max(20).optional(),
-  creditDays:       z.string()
-                     .optional()
-                     .refine(
-                       (v) => v === undefined || v === '' || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 365),
-                       { message: 'Must be a number between 0 and 365' }
-                     ),
-  active:           z.boolean().optional(),
-  notes:            z.string().max(2000).optional(),
-});
+const schema = refineIndianTaxIds(
+  z.object({
+    code:             z.string().min(2).max(30).regex(/^[A-Za-z0-9_-]+$/, 'Letters, numbers, _ and - only'),
+    name:             z.string().min(2).max(300),
+    billingStateCode: zIndianStateCode,
+    gstin:            zOptionalGstin,
+    pan:              zOptionalPan,
+    email:            zOptionalEmail,
+    phone:            zOptionalIndianPhone,
+    creditDays:       z.string()
+                       .optional()
+                       .refine(
+                         (v) => v === undefined || v === '' || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 365),
+                         { message: 'Must be a number between 0 and 365' }
+                       ),
+    active:           z.boolean().optional(),
+    notes:            z.string().max(2000).optional(),
+  }),
+);
 
 type FormData = z.infer<typeof schema>;
 type Tab = 'basic' | 'billing' | 'other';
@@ -157,7 +167,10 @@ export function CustomerFormPage() {
               />
               <Input
                 label="Phone"
+                hint="10-digit Indian mobile (starts with 6–9)"
                 error={errors.phone?.message}
+                inputMode="tel"
+                maxLength={14}
                 {...register('phone')}
               />
             </div>
@@ -169,8 +182,10 @@ export function CustomerFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Billing State Code *"
-                hint="2-char state code e.g. 27 for Maharashtra"
+                hint="2-digit GST state code (e.g. 27 = Maharashtra)"
                 error={errors.billingStateCode?.message}
+                maxLength={2}
+                inputMode="numeric"
                 {...register('billingStateCode')}
               />
               <Input
@@ -185,14 +200,18 @@ export function CustomerFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="GSTIN"
-                hint="15-character GST Identification Number"
+                placeholder="27AABCM1234F1Z5"
                 error={errors.gstin?.message}
+                maxLength={15}
+                className="uppercase font-mono"
                 {...register('gstin')}
               />
               <Input
                 label="PAN"
-                hint="10-character PAN"
+                placeholder="ABCDE1234F"
                 error={errors.pan?.message}
+                maxLength={10}
+                className="uppercase font-mono"
                 {...register('pan')}
               />
             </div>

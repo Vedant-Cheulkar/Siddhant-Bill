@@ -30,6 +30,7 @@ interface SettingsState {
   updateCompany: (data: Partial<CompanySettings>) => void;
   updateInvoice: (data: Partial<InvoiceSettings>) => void;
   updateTax: (data: Partial<TaxSettings>) => void;
+  hydrate: (data: { company: CompanySettings; invoice: InvoiceSettings; tax: TaxSettings }) => void;
 }
 
 const DEFAULT_COMPANY: CompanySettings = {
@@ -69,6 +70,13 @@ export const useSettingsStore = create<SettingsState>()(
 
       updateTax: (data) =>
         set((s) => ({ tax: { ...s.tax, ...data } })),
+
+      hydrate: (data) =>
+        set({
+          company: { ...DEFAULT_COMPANY, ...data.company },
+          invoice: { ...DEFAULT_INVOICE, ...data.invoice },
+          tax: { ...DEFAULT_TAX, ...data.tax },
+        }),
     }),
     {
       name: 'siddhant-logistics-settings',

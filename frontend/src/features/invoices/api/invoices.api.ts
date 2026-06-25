@@ -46,3 +46,13 @@ export const updateInvoiceStatus = async (id: string, status: InvoiceStatus): Pr
 export const deleteInvoice = async (id: string): Promise<void> => {
   await apiClient.delete(`/invoices/${id}`);
 };
+
+export const downloadInvoicePdf = async (id: string, filename: string): Promise<void> => {
+  const res = await apiClient.get(`/invoices/${id}/pdf`, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${filename}.pdf`;
+  link.click();
+  URL.revokeObjectURL(url);
+};

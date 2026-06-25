@@ -12,6 +12,8 @@ import {
 } from '../api/invoices.api';
 import { INVOICE_KEYS } from '../queryKeys';
 import type { InvoiceCreateRequest, InvoiceStatus } from '../types/invoice.types';
+import { WORK_ORDER_KEYS } from '@features/work-orders/queryKeys';
+import { getApiErrorMessage } from '@shared/utils/apiError';
 
 export function useInvoices(params: InvoiceListParams) {
   return useQuery({
@@ -36,10 +38,11 @@ export function useCreateInvoice() {
     mutationFn: (data: InvoiceCreateRequest) => createInvoice(data),
     onSuccess: (invoice) => {
       qc.invalidateQueries({ queryKey: INVOICE_KEYS.all });
+      qc.invalidateQueries({ queryKey: WORK_ORDER_KEYS.all });
       toast.success('Invoice created');
       navigate(`/invoices/${invoice.id}`);
     },
-    onError: () => toast.error('Failed to create invoice'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to create invoice')),
   });
 }
 
@@ -52,7 +55,7 @@ export function useUpdateInvoice(id: string) {
       qc.invalidateQueries({ queryKey: INVOICE_KEYS.all });
       toast.success('Invoice updated');
     },
-    onError: () => toast.error('Failed to update invoice'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update invoice')),
   });
 }
 
@@ -66,7 +69,7 @@ export function useUpdateInvoiceStatus() {
       qc.invalidateQueries({ queryKey: INVOICE_KEYS.all });
       toast.success('Status updated');
     },
-    onError: () => toast.error('Failed to update status'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to update status')),
   });
 }
 
@@ -80,6 +83,6 @@ export function useDeleteInvoice() {
       toast.success('Invoice deleted');
       navigate('/invoices');
     },
-    onError: () => toast.error('Failed to delete invoice'),
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Failed to delete invoice')),
   });
 }

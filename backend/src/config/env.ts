@@ -16,4 +16,6 @@ export const env = {
   jwtRefreshExpiresDays: Number(process.env.JWT_REFRESH_EXPIRES_DAYS ?? 7),
   corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:3000').split(',').map((s) => s.trim()),
   seedOnStartup: process.env.SEED_ON_STARTUP !== 'false',
+  passwordResetBaseUrl: process.env.PASSWORD_RESET_BASE_URL ?? 'http://localhost:3000',
+  nodeEnv: process.env.NODE_ENV ?? 'development',
 };
