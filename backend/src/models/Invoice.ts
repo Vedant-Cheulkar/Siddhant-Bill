@@ -34,6 +34,7 @@ const invoiceSchema = new Schema(
 );
 
 invoiceSchema.index({ organizationId: 1, displayNumber: 1 }, { unique: true, partialFilterExpression: { deletedAt: null } });
+invoiceSchema.index({ organizationId: 1, deletedAt: 1, invoiceDate: -1 });
 
 export type InvoiceDoc = InferSchemaType<typeof invoiceSchema> & { _id: string };
 export const Invoice = mongoose.model('Invoice', invoiceSchema);
