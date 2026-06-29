@@ -259,6 +259,8 @@ export const demoHandlers = [
       invoiceDate: body.invoiceDate ?? now.slice(0, 10),
       dueDate: body.dueDate,
       currency: 'INR',
+      documentType: body.documentType ?? 'TAX_INVOICE',
+      reverseCharge: body.reverseCharge ?? false,
       grandTotal: items.reduce((s, i) => s + i.lineTotal, 0),
       notes: body.notes,
       items,

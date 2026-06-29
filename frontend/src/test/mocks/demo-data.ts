@@ -99,6 +99,7 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
     id: 'inv-1', displayNumber: 'SL-2026-001', status: 'ISSUED',
     customerId: 'cust-1', customerName: 'Maruti Transport Co.',
     invoiceDate: '2026-01-10', dueDate: '2026-02-09', currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 35400,
     notes: 'Scheduled Jan maintenance — 4 trucks',
     items: [
@@ -111,7 +112,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-2', displayNumber: 'SL-2026-002', status: 'ISSUED',
     customerId: 'cust-2', customerName: 'Bharti Logistics Pvt Ltd',
-    invoiceDate: '2026-01-18', dueDate: '2026-03-04', currency: 'INR',
+    invoiceDate: '2026-01-18', dueDate: '2026-03-04',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 51684,
     notes: 'Brake overhaul — 6 long-haul trucks',
     items: [
@@ -123,7 +125,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-3', displayNumber: 'SL-2026-003', status: 'ISSUED',
     customerId: 'cust-4', customerName: 'Tata Fleet Services Ltd',
-    invoiceDate: '2026-01-25', dueDate: '2026-03-25', currency: 'INR',
+    invoiceDate: '2026-01-25', dueDate: '2026-03-25',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 110448,
     notes: 'Full fleet tune-up — 8 vehicles',
     items: [
@@ -136,7 +139,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-4', displayNumber: 'SL-2026-004', status: 'ISSUED',
     customerId: 'cust-3', customerName: 'Reliance Freight Solutions',
-    invoiceDate: '2026-02-05', dueDate: '2026-03-07', currency: 'INR',
+    invoiceDate: '2026-02-05', dueDate: '2026-03-07',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 27966,
     notes: 'Quarterly service — 3 vehicles (IGST)',
     items: [
@@ -149,7 +153,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-5', displayNumber: 'SL-2026-005', status: 'ISSUED',
     customerId: 'cust-1', customerName: 'Maruti Transport Co.',
-    invoiceDate: '2026-02-12', dueDate: '2026-03-14', currency: 'INR',
+    invoiceDate: '2026-02-12', dueDate: '2026-03-14',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 186008,
     notes: 'Tyre replacement — full fleet rotation (8 trucks × 2 tyres)',
     items: [
@@ -161,7 +166,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-6', displayNumber: 'SL-2026-006', status: 'ISSUED',
     customerId: 'cust-5', customerName: 'Kirti Cargo Services',
-    invoiceDate: '2026-03-08', dueDate: '2026-04-07', currency: 'INR',
+    invoiceDate: '2026-03-08', dueDate: '2026-04-07',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 8496,
     notes: 'Routine service — 2 trucks',
     items: [
@@ -174,7 +180,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-7', displayNumber: 'SL-2026-007', status: 'ISSUED',
     customerId: 'cust-6', customerName: 'Supreme Transport Corp',
-    invoiceDate: '2026-03-20', dueDate: '2026-04-19', currency: 'INR',
+    invoiceDate: '2026-03-20', dueDate: '2026-04-19',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 38468,
     notes: 'Transmission + routine service — 2 vehicles (IGST)',
     items: [
@@ -187,7 +194,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-8', displayNumber: 'SL-2026-008', status: 'DRAFT',
     customerId: 'cust-4', customerName: 'Tata Fleet Services Ltd',
-    invoiceDate: '2026-04-05', dueDate: '2026-06-04', currency: 'INR',
+    invoiceDate: '2026-04-05', dueDate: '2026-06-04',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 129800,
     notes: 'Apr major service — 10 vehicles (pending approval)',
     items: [
@@ -199,7 +207,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-9', displayNumber: 'SL-2026-009', status: 'DRAFT',
     customerId: 'cust-2', customerName: 'Bharti Logistics Pvt Ltd',
-    invoiceDate: '2026-04-22', dueDate: '2026-06-06', currency: 'INR',
+    invoiceDate: '2026-04-22', dueDate: '2026-06-06',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 34456,
     notes: 'Brake overhaul — 4 trucks (draft, awaiting part confirmation)',
     items: [
@@ -211,7 +220,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-10', displayNumber: 'SL-2026-010', status: 'DRAFT',
     customerId: 'cust-7', customerName: 'Ashok Leyland Fleet Mgmt',
-    invoiceDate: '2026-05-10', dueDate: '2026-06-24', currency: 'INR',
+    invoiceDate: '2026-05-10', dueDate: '2026-06-24',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 65962,
     notes: 'May service cycle — 5 vehicles + 2 transmissions (IGST)',
     items: [
@@ -224,7 +234,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-11', displayNumber: 'SL-2026-011', status: 'CANCELLED',
     customerId: 'cust-5', customerName: 'Kirti Cargo Services',
-    invoiceDate: '2026-03-01', dueDate: '2026-03-31', currency: 'INR',
+    invoiceDate: '2026-03-01', dueDate: '2026-03-31',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 5900,
     notes: 'Cancelled — customer requested reschedule',
     items: [
@@ -235,7 +246,8 @@ export const SEED_INVOICES: InvoiceDetailResponse[] = [
   {
     id: 'inv-12', displayNumber: 'SL-2026-012', status: 'CANCELLED',
     customerId: 'cust-8', customerName: 'Swift Move Logistics',
-    invoiceDate: '2026-03-15', dueDate: '2026-03-30', currency: 'INR',
+    invoiceDate: '2026-03-15', dueDate: '2026-03-30',     currency: 'INR',
+    documentType: 'TAX_INVOICE', reverseCharge: false,
     grandTotal: 14160,
     notes: 'Cancelled — client contract terminated',
     items: [
