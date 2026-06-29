@@ -183,12 +183,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                         onClick={() => handleSelect(item)}
                         className={cn(
                           'flex items-center gap-3 w-full px-3 py-2.5 text-left transition-colors',
-                          absIdx === highlighted ? 'bg-accent-bg' : 'hover:bg-stone-50'
+                          absIdx === highlighted ? 'bg-indigo-50' : 'hover:bg-bg'
                         )}
                       >
                         <span className={cn(
                           'w-7 h-7 rounded-lg flex items-center justify-center shrink-0',
-                          absIdx === highlighted ? 'bg-accent text-white' : 'bg-bg text-muted'
+                          absIdx === highlighted ? 'bg-indigo-500 text-white' : 'bg-bg text-muted'
                         )}>
                           {item.icon}
                         </span>

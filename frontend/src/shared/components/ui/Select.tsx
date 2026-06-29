@@ -22,7 +22,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label className="text-sm font-medium text-fg">
+          <label className="text-sm font-semibold text-fg">
             {label}
           </label>
         )}
@@ -33,7 +33,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             className={cn(
               'w-full appearance-none px-3 py-2.5 pr-9 rounded-input border bg-surface text-sm text-fg',
               'focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400',
-              'transition-colors',
+              'transition-colors hover:border-border-strong',
               error ? 'border-red-400 focus:ring-red-100' : 'border-border',
               props.disabled && 'opacity-50 cursor-not-allowed bg-bg',
               className

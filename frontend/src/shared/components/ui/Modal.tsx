@@ -54,7 +54,7 @@ export function Modal({ open, onClose, title, description, children, size = 'md'
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -64,14 +64,14 @@ export function Modal({ open, onClose, title, description, children, size = 'md'
         ref={panelRef}
         tabIndex={-1}
         className={cn(
-          'relative w-full bg-surface rounded-2xl shadow-xl outline-none',
+          'relative w-full bg-surface rounded-2xl shadow-2xl border border-border/50 outline-none',
           'animate-scale-in',
           SIZES[size],
           className
         )}
       >
         {(title || description) && (
-          <div className="px-6 pt-6 pb-4 border-b border-border">
+          <div className="px-6 pt-6 pb-4 border-b border-border/70">
             {title && (
               <h2 id="modal-title" className="text-base font-semibold text-fg">
                 {title}
@@ -85,7 +85,7 @@ export function Modal({ open, onClose, title, description, children, size = 'md'
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-fg hover:bg-stone-100 transition-colors"
+          className="absolute top-4 right-4 w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-fg hover:bg-bg-subtle transition-colors"
           aria-label="Close"
         >
           <X size={14} />
@@ -124,7 +124,7 @@ export function ConfirmDialog({
       <div className="flex justify-end gap-3">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm rounded-lg border border-border bg-surface hover:bg-stone-50 text-fg transition-colors"
+          className="px-4 py-2 text-sm rounded-lg border border-border bg-surface hover:bg-bg text-fg transition-colors font-medium"
         >
           Cancel
         </button>
@@ -132,10 +132,10 @@ export function ConfirmDialog({
           onClick={onConfirm}
           disabled={isLoading}
           className={cn(
-            'px-4 py-2 text-sm rounded-lg font-medium transition-colors disabled:opacity-50',
+            'px-4 py-2 text-sm rounded-lg font-semibold transition-all disabled:opacity-50',
             variant === 'danger'
-              ? 'bg-red-500 hover:bg-red-600 text-white'
-              : 'bg-accent hover:bg-accent-hover text-white'
+              ? 'bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-sm hover:shadow-md'
+              : 'bg-gradient-to-br from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-sm hover:shadow-md'
           )}
         >
           {isLoading ? 'Please wait…' : confirmLabel}

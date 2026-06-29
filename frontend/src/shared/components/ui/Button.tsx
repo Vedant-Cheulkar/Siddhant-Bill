@@ -4,18 +4,18 @@ import type { ButtonHTMLAttributes } from 'react';
 
 const button = cva(
   [
-    'inline-flex items-center justify-center gap-2 font-medium rounded-input transition-all',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1',
+    'inline-flex items-center justify-center gap-2 font-semibold rounded-input transition-all duration-150',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
     'disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap select-none',
-    'active:scale-[0.98]',
+    'active:scale-[0.97]',
   ].join(' '),
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm',
-        outline: 'border border-border bg-surface text-fg hover:bg-bg hover:border-border-strong',
-        ghost:   'text-fg hover:bg-bg',
-        danger:  'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+        primary: 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white hover:from-indigo-600 hover:to-violet-700 shadow-sm hover:shadow-md',
+        outline: 'border border-border bg-surface text-fg hover:bg-bg hover:border-border-strong shadow-sm',
+        ghost:   'text-muted hover:text-fg hover:bg-bg-subtle',
+        danger:  'bg-gradient-to-br from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 shadow-sm hover:shadow-md',
         soft:    'bg-accent-bg text-accent-text hover:bg-indigo-100 font-semibold',
       },
       size: {

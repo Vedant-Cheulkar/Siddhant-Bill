@@ -28,7 +28,7 @@ export function AppLayout() {
 
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-bg">
-      <Sidebar className="hidden lg:flex min-h-screen" />
+      <Sidebar className="hidden lg:flex min-h-screen" onOpenSearch={() => setPaletteOpen(true)} />
 
       {mobileNavOpen && (
         <>
@@ -41,6 +41,10 @@ export function AppLayout() {
           <Sidebar
             className="fixed inset-y-0 left-0 z-50 min-h-full shadow-xl lg:hidden"
             onNavigate={() => setMobileNavOpen(false)}
+            onOpenSearch={() => {
+              setMobileNavOpen(false);
+              setPaletteOpen(true);
+            }}
           />
         </>
       )}

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlidersHorizontal } from 'lucide-react';
 import { InvoiceStatusBadge } from '@shared/components/ui/Badge';
 import { EmptyState } from '@shared/components/ui/EmptyState';
 import { SkeletonRow } from '@shared/components/ui/Skeleton';
@@ -40,16 +39,13 @@ export function RecentInvoicesWidget() {
     <div className="overflow-hidden">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-5 pt-4 pb-3 border-b border-border">
         <h3 className="text-sm font-semibold shrink-0">Recent Invoices</h3>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="w-full sm:w-auto sm:max-w-[10rem]">
           <SearchInput
             value={search}
             onChange={setSearch}
             placeholder="Search..."
             className="sm:w-36"
           />
-          <button className="flex items-center gap-1 px-2.5 py-1.5 border border-border rounded-lg text-xs bg-surface hover:bg-bg transition-colors whitespace-nowrap shrink-0">
-            <SlidersHorizontal size={11} /> Filter
-          </button>
         </div>
       </div>
 
@@ -88,7 +84,7 @@ export function RecentInvoicesWidget() {
                 <tr
                   key={inv.id}
                   onClick={() => navigate(`/invoices/${inv.id}`)}
-                  className="border-b border-border hover:bg-indigo-50/60 cursor-pointer transition-colors"
+                  className="border-b border-border hover:bg-accent-bg/50 cursor-pointer transition-colors"
                 >
                   <td className="px-3 sm:px-5 py-3.5 font-mono text-xs">{inv.displayNumber ?? '—'}</td>
                   <td className="px-3 sm:px-5 py-3.5 text-xs text-muted max-w-[8rem] sm:max-w-none truncate">{customerMap.get(inv.customerId) ?? inv.customerId}</td>

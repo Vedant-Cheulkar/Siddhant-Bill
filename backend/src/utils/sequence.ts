@@ -60,6 +60,16 @@ async function nextSequence(key: string): Promise<number> {
   return counter!.seq;
 }
 
+function currentFinancialYear(): string {
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const year = now.getFullYear();
+  // Indian FY: April 1 – March 31
+  const fyStart = month >= 4 ? year : year - 1;
+  const fyEnd = String(fyStart + 1).slice(-2);
+  return `${fyStart}-${fyEnd}`;
+}
+
 async function getInvoiceConfig(orgId: string) {
   const settings = await OrganizationSettings.findById(orgId).lean();
   const prefix = settings?.invoice?.prefix?.trim() || 'SL';
@@ -68,10 +78,10 @@ async function getInvoiceConfig(orgId: string) {
 }
 
 export async function nextInvoiceNumber(orgId: string): Promise<string> {
-  const year = new Date().getFullYear();
+  const fy = currentFinancialYear();
   const { prefix, startingNumber } = await getInvoiceConfig(orgId);
-  const numberPrefix = `${prefix}-${year}-`;
-  const key = `invoice:${orgId}:${year}`;
+  const numberPrefix = `${prefix}/${fy}/`;
+  const key = `invoice:${orgId}:${fy}`;
 
   await bootstrapSequence(key, async () => {
     const max = await maxInvoiceSuffix(orgId, numberPrefix);

@@ -18,7 +18,7 @@ function SummaryRow({ icon, label, value, to, iconBg }: SummaryRowProps) {
   return (
     <button
       onClick={() => navigate(to)}
-      className="flex items-center gap-3.5 w-full text-left px-4 py-3.5 hover:bg-stone-50 transition-colors group"
+      className="flex items-center gap-3.5 w-full text-left px-4 py-3.5 hover:bg-indigo-50/40 transition-colors group"
     >
       <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', iconBg)}>
         {icon}
@@ -59,7 +59,7 @@ export function SummaryPanel() {
       label: 'Total Invoices',
       value: formatNumber(total),
       to: '/invoices',
-      iconBg: 'bg-accent-bg text-accent',
+      iconBg: 'bg-indigo-50 text-indigo-600',
     },
     {
       icon: <TrendingUp size={15} />,

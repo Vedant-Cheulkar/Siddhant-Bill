@@ -110,11 +110,11 @@ export function ProductFormPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-fg block mb-1.5">Description</label>
+            <label className="text-sm font-semibold text-fg block mb-1.5">Description</label>
             <textarea
               rows={3}
               placeholder="Optional product description…"
-              className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none transition-colors"
+              className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none transition-colors hover:border-border-strong"
               {...register('description')}
             />
           </div>
@@ -148,7 +148,7 @@ export function ProductFormPage() {
           <label className="flex items-center gap-3 cursor-pointer group">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded accent-indigo-600"
+              className="w-4 h-4 rounded accent-accent"
               {...register('active')}
             />
             <div>

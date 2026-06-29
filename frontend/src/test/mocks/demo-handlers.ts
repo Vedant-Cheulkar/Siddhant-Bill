@@ -17,6 +17,29 @@ let products:  ProductResponse[]       = structuredClone(SEED_PRODUCTS);
 let invoices:  InvoiceDetailResponse[] = structuredClone(SEED_INVOICES);
 let workOrders: WorkOrderResponse[]    = structuredClone(SEED_WORK_ORDERS);
 
+let orgSettings = {
+  company: {
+    name: 'Siddhant Logistics',
+    gstin: '27AABCS1234F1Z5',
+    pan: 'AABCS1234F',
+    address: 'Plot 12, MIDC Industrial Area',
+    city: 'Pune',
+    stateCode: '27',
+    phone: '9822012345',
+    email: 'billing@siddhantlogistics.com',
+  },
+  invoice: {
+    prefix: 'SL',
+    startingNumber: 1,
+    defaultDueDays: 30,
+    terms:
+      'Payment due within 30 days of invoice date. Late payments may attract 2% per month interest.',
+  },
+  tax: {
+    defaultRate: 18,
+  },
+};
+
 /* ── Helpers ──────────────────────────────────────────────────── */
 const uid = () => crypto.randomUUID();
 const ts  = () => new Date().toISOString();
@@ -102,6 +125,12 @@ export const demoHandlers = [
 
     return HttpResponse.json({ data: page(list, p, sz) });
   }),
+
+  http.get(`${BASE}/customers/lookup`, () =>
+    HttpResponse.json({
+      data: customers.map((c) => ({ id: c.id, name: c.name })),
+    }),
+  ),
 
   http.get(`${BASE}/customers/:id`, ({ params }) => {
     const c = customers.find(x => x.id === params.id);
@@ -382,4 +411,19 @@ export const demoHandlers = [
   http.get(`${BASE}/reports/yearly-trend`, () =>
     HttpResponse.json({ data: [] })
   ),
+
+  /* ── Settings ── */
+  http.get(`${BASE}/settings`, () =>
+    HttpResponse.json({ data: orgSettings }),
+  ),
+
+  http.put(`${BASE}/settings`, async ({ request }) => {
+    const body = (await request.json()) as Partial<typeof orgSettings>;
+    orgSettings = {
+      company: { ...orgSettings.company, ...body.company },
+      invoice: { ...orgSettings.invoice, ...body.invoice },
+      tax: { ...orgSettings.tax, ...body.tax },
+    };
+    return HttpResponse.json({ data: orgSettings });
+  }),
 ];

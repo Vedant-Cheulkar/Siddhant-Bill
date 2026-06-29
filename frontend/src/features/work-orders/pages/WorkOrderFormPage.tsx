@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray, Controller, type Control, type FieldArrayWithId, type FieldErrors, type UseFormRegister } from 'react-hook-form';
 import { z } from 'zod';
-import { Wrench, ChevronRight, AlertCircle } from 'lucide-react';
+import { Wrench, AlertCircle } from 'lucide-react';
 import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { format } from 'date-fns';
 import { Card } from '@shared/components/ui/Card';
@@ -70,7 +70,7 @@ const STATUS_COLORS: Record<WorkOrderStatus, string> = {
   OPEN:        'bg-blue-50 text-blue-700 border-blue-200',
   IN_PROGRESS: 'bg-amber-50 text-amber-700 border-amber-200',
   COMPLETED:   'bg-emerald-50 text-emerald-700 border-emerald-200',
-  INVOICED:    'bg-indigo-50 text-indigo-700 border-indigo-200',
+  INVOICED:    'bg-accent-bg text-accent-text border-border',
   CANCELLED:   'bg-red-50 text-red-700 border-red-200',
 };
 
@@ -208,18 +208,9 @@ export function WorkOrderFormPage() {
 
   return (
     <div>
-      {/* Breadcrumb + title */}
+      {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs text-muted mb-1">
-            <button onClick={() => navigate('/work-orders')} className="hover:text-fg transition-colors">
-              Work Orders
-            </button>
-            <ChevronRight size={12} />
-            <span className="text-fg font-medium">
-              {isEdit ? (existing?.orderNumber ?? 'Work Order') : 'New Work Order'}
-            </span>
-          </div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight">
               {isEdit ? (existing?.orderNumber ?? 'Work Order') : 'New Work Order'}
@@ -303,12 +294,12 @@ export function WorkOrderFormPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-fg block mb-1.5">Job Description</label>
+                <label className="text-sm font-semibold text-fg block mb-1.5">Job Description</label>
                 <textarea
                   rows={2}
                   disabled={isReadOnly}
                   placeholder="Brief description of the maintenance work…"
-                  className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors"
+                  className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors hover:border-border-strong"
                   {...register('description')}
                 />
               </div>
@@ -342,7 +333,7 @@ export function WorkOrderFormPage() {
                 rows={3}
                 disabled={isReadOnly}
                 placeholder="Notes about this work order…"
-                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors"
+                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors hover:border-border-strong"
                 {...register('notes')}
               />
             </Card>
@@ -353,7 +344,7 @@ export function WorkOrderFormPage() {
             <Card className="p-5 xl:sticky xl:top-4">
               <h2 className="text-sm font-semibold mb-4">Order Summary</h2>
 
-              <div className="bg-stone-50 rounded-xl border border-border p-4 text-xs space-y-3">
+              <div className="bg-bg rounded-xl border border-border/70 p-4 text-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-semibold text-sm">
                     {existing?.orderNumber ?? 'WO-NEW'}

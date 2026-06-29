@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Download, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from '@shared/components/ui/Button';
+import { AppLogo } from '@shared/components/brand/AppLogo';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -41,7 +42,7 @@ export function InstallPrompt() {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border bg-accent-bg px-4 py-2.5 safe-top">
       <div className="flex min-w-0 items-center gap-2 text-sm text-accent-text">
-        <Download size={15} className="shrink-0" />
+        <AppLogo variant="mark" className="h-6 w-6 shrink-0" />
         <span className="font-medium truncate">Install Siddhant Bill for quick access</span>
       </div>
       <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">

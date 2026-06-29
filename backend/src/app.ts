@@ -6,13 +6,17 @@ import { env } from './config/env.js';
 import { correlationId } from './middleware/correlationId.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import apiRoutes from './routes/index.js';
+import { setupSwagger } from './openapi/setup.js';
 
 export function createApp() {
   const app = express();
 
   app.use(
     helmet({
-      contentSecurityPolicy: env.nodeEnv === 'production',
+      contentSecurityPolicy:
+        env.nodeEnv === 'production' && !env.swaggerEnabled
+          ? undefined
+          : false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
@@ -31,6 +35,10 @@ export function createApp() {
     const status = dbUp ? 'UP' : 'DOWN';
     res.status(dbUp ? 200 : 503).json({ status, database: dbUp ? 'UP' : 'DOWN' });
   });
+
+  if (env.swaggerEnabled) {
+    setupSwagger(app);
+  }
 
   app.use('/api/v1', apiRoutes);
   app.use(errorHandler);

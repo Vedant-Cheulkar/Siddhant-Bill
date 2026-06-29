@@ -109,7 +109,7 @@ export function Combobox({
   return (
     <div className={cn('flex flex-col gap-1.5', className)} ref={containerRef}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-fg">
+        <label htmlFor={id} className="text-sm font-semibold text-fg">
           {label}
         </label>
       )}
@@ -126,7 +126,7 @@ export function Combobox({
           disabled={disabled}
           className={cn(
             'w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-input border bg-surface text-sm text-left',
-            'focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 transition-colors',
+            'focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 transition-colors hover:border-border-strong',
             error ? 'border-red-400' : 'border-border',
             disabled && 'opacity-50 cursor-not-allowed',
             open && 'border-indigo-400 ring-2 ring-indigo-100'
@@ -177,7 +177,7 @@ export function Combobox({
                     onMouseEnter={() => setHighlighted(i)}
                     className={cn(
                       'flex items-center justify-between gap-2 px-3 py-2.5 cursor-pointer transition-colors',
-                      i === highlighted ? 'bg-accent-bg' : 'hover:bg-stone-50',
+                      i === highlighted ? 'bg-indigo-50' : 'hover:bg-bg',
                       option.value === value && 'font-medium'
                     )}
                   >
@@ -186,7 +186,7 @@ export function Combobox({
                       {option.sub && <p className="text-xs text-muted truncate">{option.sub}</p>}
                     </div>
                     {option.value === value && (
-                      <Check size={13} className="text-accent shrink-0" />
+                      <Check size={13} className="text-indigo-500 shrink-0" />
                     )}
                   </li>
                 ))

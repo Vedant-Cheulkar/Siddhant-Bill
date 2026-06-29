@@ -5,8 +5,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const svgPath = path.join(root, 'public', 'favicon.svg');
+const markPath = path.join(root, 'public', 'logo-mark.png');
 const outDir = path.join(root, 'public', 'icons');
+
+const BRAND_BG = { r: 245, g: 245, b: 245, alpha: 1 };
 
 await mkdir(outDir, { recursive: true });
 
@@ -19,8 +21,8 @@ const sizes = [
 for (const { name, size, padding = 0 } of sizes) {
   const inner = Math.round(size * (1 - padding * 2));
   const offset = Math.round((size - inner) / 2);
-  const resized = await sharp(svgPath)
-    .resize(inner, inner, { fit: 'contain', background: { r: 79, g: 70, b: 229, alpha: 1 } })
+  const resized = await sharp(markPath)
+    .resize(inner, inner, { fit: 'contain', background: BRAND_BG })
     .png()
     .toBuffer();
 
@@ -29,7 +31,7 @@ for (const { name, size, padding = 0 } of sizes) {
       width: size,
       height: size,
       channels: 4,
-      background: { r: 79, g: 70, b: 229, alpha: 1 },
+      background: BRAND_BG,
     },
   })
     .composite([{ input: resized, left: offset, top: offset }])

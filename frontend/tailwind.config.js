@@ -22,6 +22,17 @@ export default {
           text:    'var(--color-accent-text)',
         },
 
+        /* --- Sidebar (dark) --- */
+        sidebar: {
+          bg:          'var(--color-sidebar-bg)',
+          border:      'var(--color-sidebar-border)',
+          fg:          'var(--color-sidebar-fg)',
+          muted:       'var(--color-sidebar-muted)',
+          'active-bg': 'var(--color-sidebar-active-bg)',
+          'active-fg': 'var(--color-sidebar-active-fg)',
+          'hover-bg':  'var(--color-sidebar-hover-bg)',
+        },
+
         /* --- Status --- */
         issued:    { DEFAULT: 'var(--color-issued)',    bg: 'var(--color-issued-bg)' },
         draft:     { DEFAULT: 'var(--color-draft)',     bg: 'var(--color-draft-bg)' },
@@ -38,10 +49,10 @@ export default {
         input: '0.5rem',
       },
       boxShadow: {
-        card:    '0 1px 3px 0 rgba(0,0,0,.06), 0 1px 2px -1px rgba(0,0,0,.04)',
-        'card-md':'0 4px 8px -2px rgba(0,0,0,.08), 0 2px 4px -2px rgba(0,0,0,.04)',
-        'card-lg':'0 10px 20px -4px rgba(0,0,0,.10), 0 4px 6px -4px rgba(0,0,0,.05)',
-        inset:   'inset 0 1px 2px 0 rgba(0,0,0,.05)',
+        card:     '0 1px 3px 0 rgba(0,0,0,.05), 0 1px 2px -1px rgba(0,0,0,.04)',
+        'card-md':'0 4px 12px -2px rgba(0,0,0,.09), 0 2px 4px -2px rgba(0,0,0,.05)',
+        'card-lg':'0 12px 24px -4px rgba(0,0,0,.11), 0 4px 8px -4px rgba(0,0,0,.05)',
+        inset:    'inset 0 1px 2px 0 rgba(0,0,0,.05)',
       },
       transitionDuration: {
         DEFAULT: '150ms',

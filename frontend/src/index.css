@@ -5,30 +5,39 @@
 
 /* ─── Design Tokens ────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
-  --color-bg:           #edecea;
-  --color-bg-subtle:    #e5e2de;
+  /* Page background */
+  --color-bg:           #f1f5f9;
+  --color-bg-subtle:    #e2e8f0;
   --color-surface:      #ffffff;
-  --color-surface-hover:#f9f8f7;
-  --color-border:       #e2e0db;
-  --color-border-strong:#c9c5be;
+  --color-surface-hover:#f8fafc;
+  --color-border:       #e2e8f0;
+  --color-border-strong:#cbd5e1;
 
   /* Text */
-  --color-fg:    #1c1917;
-  --color-muted: #78716c;
+  --color-fg:    #0f172a;
+  --color-muted: #64748b;
 
-  /* Accent — primary interactive colour (indigo) */
-  --color-accent:       #4f46e5;
-  --color-accent-hover: #4338ca;
+  /* Accent — indigo */
+  --color-accent:       #6366f1;
+  --color-accent-hover: #4f46e5;
   --color-accent-bg:    #eef2ff;
-  --color-accent-text:  #3730a3;
+  --color-accent-text:  #4338ca;
+
+  /* Sidebar (dark) */
+  --color-sidebar-bg:        #0f172a;
+  --color-sidebar-border:    #1e293b;
+  --color-sidebar-fg:        #cbd5e1;
+  --color-sidebar-muted:     #475569;
+  --color-sidebar-active-bg: rgba(99, 102, 241, 0.15);
+  --color-sidebar-active-fg: #a5b4fc;
+  --color-sidebar-hover-bg:  rgba(255, 255, 255, 0.055);
 
   /* Status */
-  --color-issued:       #2563eb;
+  --color-issued:       #3b82f6;
   --color-issued-bg:    #eff6ff;
-  --color-draft:        #71717a;
-  --color-draft-bg:     #f4f4f5;
-  --color-cancelled:    #dc2626;
+  --color-draft:        #64748b;
+  --color-draft-bg:     #f1f5f9;
+  --color-cancelled:    #ef4444;
   --color-cancelled-bg: #fef2f2;
 }
 
@@ -47,19 +56,15 @@ body {
 
 #root { min-height: 100vh; min-height: 100dvh; }
 
-/* ─── PWA safe areas (notched phones / standalone) ─────────── */
-.safe-top {
-  padding-top: env(safe-area-inset-top);
-}
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
+/* ─── PWA safe areas ────────────────────────────────────────── */
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 /* ─── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d1cfc9; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #b8b4ac; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* ─── Focus ring ────────────────────────────────────────────── */
 :focus-visible {

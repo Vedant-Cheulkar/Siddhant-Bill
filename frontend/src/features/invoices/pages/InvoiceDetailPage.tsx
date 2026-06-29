@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray, Controller, type Control, type FieldArrayWithId, type FieldErrors, type UseFormRegister } from 'react-hook-form';
 import { z } from 'zod';
-import { ChevronRight, AlertCircle, Printer } from 'lucide-react';
+import { AlertCircle, Printer } from 'lucide-react';
 import { typedZodResolver } from '@shared/utils/typedZodResolver';
 import { format, addDays, parseISO } from 'date-fns';
 import { Card } from '@shared/components/ui/Card';
 import { Input } from '@shared/components/ui/Input';
 import { Button } from '@shared/components/ui/Button';
+import { Select } from '@shared/components/ui/Select';
 import { Combobox, type ComboboxOption } from '@shared/components/ui/Combobox';
 import { InvoiceStatusBadge } from '@shared/components/ui/Badge';
 import { Spinner } from '@shared/components/ui/Spinner';
@@ -28,11 +29,12 @@ import { getApiErrorMessage } from '@shared/utils/apiError';
 import { toast } from 'sonner';
 import { useSettingsStore } from '@features/settings/store/useSettingsStore';
 import { LineItemEditor, calcLineTotal, type LineItemFormShape } from '@shared/components/widgets/LineItemEditor';
-import type { InvoiceStatus } from '../types/invoice.types';
+import type { InvoiceStatus, DocumentType } from '../types/invoice.types';
 
 /* ── Zod schema ───────────────────────────────────────────── */
 const lineItemSchema = z.object({
   productId:       z.string().optional(),
+  hsnSac:          z.string().optional(),
   description:     z.string().min(1, 'Required'),
   quantity:        z.number().min(0.01, 'Must be > 0'),
   unitPrice:       z.number().min(0, 'Cannot be negative'),
@@ -40,19 +42,24 @@ const lineItemSchema = z.object({
   discountPercent: z.number().min(0).max(100),
 });
 
+const DOCUMENT_TYPES = ['TAX_INVOICE', 'BILL_OF_SUPPLY', 'CREDIT_NOTE', 'DEBIT_NOTE'] as const;
+
 const schema = z.object({
-  customerId:  z.string().min(1, 'Select a customer'),
-  invoiceDate: z.string().min(1, 'Required'),
-  dueDate:     z.string().optional(),
-  currency:    z.string().min(1),
-  notes:       z.string().optional(),
-  items:       z.array(lineItemSchema).min(1, 'At least one item required'),
+  customerId:    z.string().min(1, 'Select a customer'),
+  invoiceDate:   z.string().min(1, 'Required'),
+  dueDate:       z.string().optional(),
+  currency:      z.string().min(1),
+  documentType:  z.enum(DOCUMENT_TYPES),
+  reverseCharge: z.boolean(),
+  notes:         z.string().optional(),
+  items:         z.array(lineItemSchema).min(1, 'At least one item required'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 const defaultItem = {
   productId: undefined as string | undefined,
+  hsnSac: undefined as string | undefined,
   description: '',
   quantity: 1,
   unitPrice: 0,
@@ -124,6 +131,8 @@ export function InvoiceDetailPage() {
       invoiceDate: format(new Date(), 'yyyy-MM-dd'),
       dueDate: '',
       currency: 'INR',
+      documentType: 'TAX_INVOICE' as DocumentType,
+      reverseCharge: false,
       notes: '',
       items: [defaultItem],
     },
@@ -186,9 +195,12 @@ export function InvoiceDetailPage() {
       invoiceDate: existing.invoiceDate,
       dueDate: existing.dueDate ?? '',
       currency: existing.currency,
+      documentType: existing.documentType ?? 'TAX_INVOICE',
+      reverseCharge: existing.reverseCharge ?? false,
       notes: existing.notes ?? '',
       items: existing.items.map((i) => ({
         productId: i.productId ?? undefined,
+        hsnSac: i.hsnSac ?? undefined,
         description: i.description,
         quantity: i.quantity,
         unitPrice: i.unitPrice,
@@ -208,10 +220,13 @@ export function InvoiceDetailPage() {
       invoiceDate: data.invoiceDate,
       dueDate: data.dueDate || undefined,
       currency: data.currency,
+      documentType: data.documentType,
+      reverseCharge: data.reverseCharge,
       notes: data.notes || undefined,
       workOrderId: pendingWorkOrderId.current,
       items: data.items.map((i) => ({
         productId: i.productId || undefined,
+        hsnSac: i.hsnSac || undefined,
         description: i.description,
         quantity: i.quantity,
         unitPrice: i.unitPrice,
@@ -239,6 +254,7 @@ export function InvoiceDetailPage() {
         if (product) {
           setValue(`items.${idx}.description`, product.name);
           setValue(`items.${idx}.unitPrice`, product.salePrice);
+          setValue(`items.${idx}.hsnSac`, product.hsnSac ?? '');
         } else {
           setValue(`items.${idx}.description`, option.label);
         }
@@ -275,15 +291,6 @@ export function InvoiceDetailPage() {
       {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs text-muted mb-1">
-            <button onClick={() => navigate('/invoices')} className="hover:text-fg transition-colors">
-              Invoices
-            </button>
-            <ChevronRight size={12} />
-            <span className="text-fg font-medium">
-              {isEdit ? (existing?.displayNumber ?? 'Invoice') : 'New Invoice'}
-            </span>
-          </div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight">
               {isEdit ? (existing?.displayNumber ?? 'Invoice') : 'New Invoice'}
@@ -400,6 +407,42 @@ export function InvoiceDetailPage() {
                   disabled={isReadOnly}
                   {...register('currency')}
                 />
+                <Controller
+                  control={control}
+                  name="documentType"
+                  render={({ field }) => (
+                    <Select
+                      label="Document Type"
+                      value={field.value}
+                      onChange={(v) => field.onChange(v as DocumentType)}
+                      disabled={isReadOnly}
+                      options={[
+                        { value: 'TAX_INVOICE',   label: 'Tax Invoice' },
+                        { value: 'BILL_OF_SUPPLY', label: 'Bill of Supply' },
+                        { value: 'CREDIT_NOTE',   label: 'Credit Note' },
+                        { value: 'DEBIT_NOTE',    label: 'Debit Note' },
+                      ]}
+                    />
+                  )}
+                />
+                <div className="flex items-center gap-3 pt-1">
+                  <Controller
+                    control={control}
+                    name="reverseCharge"
+                    render={({ field }) => (
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          disabled={isReadOnly}
+                          className="w-4 h-4 rounded border-border accent-indigo-600 disabled:opacity-60"
+                        />
+                        <span className="text-sm font-medium text-fg">Reverse Charge (RCM)</span>
+                      </label>
+                    )}
+                  />
+                </div>
               </div>
             </Card>
 
@@ -430,7 +473,7 @@ export function InvoiceDetailPage() {
                 rows={3}
                 disabled={isReadOnly}
                 placeholder="Internal notes for this invoice…"
-                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors"
+                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none disabled:opacity-70 transition-colors hover:border-border-strong"
                 {...register('notes')}
               />
             </Card>
@@ -441,7 +484,7 @@ export function InvoiceDetailPage() {
             <Card className="p-5 xl:sticky xl:top-4">
               <h2 className="text-sm font-semibold mb-4">Invoice Summary</h2>
 
-              <div className="bg-stone-50 rounded-xl border border-border p-4 text-xs space-y-3">
+              <div className="bg-bg rounded-xl border border-border/70 p-4 text-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-semibold text-sm">
                     {existing?.displayNumber ?? 'INV-NEW'}
@@ -527,7 +570,7 @@ export function InvoiceDetailPage() {
               </div>
 
               {watched.notes && (
-                <div className="mt-3 px-3 py-2.5 bg-stone-50 rounded-lg border border-border text-xs text-muted">
+                <div className="mt-3 px-3 py-2.5 bg-bg rounded-lg border border-border/70 text-xs text-muted">
                   <p className="font-medium text-fg mb-0.5">Notes</p>
                   <p>{watched.notes}</p>
                 </div>

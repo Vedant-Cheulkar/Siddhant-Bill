@@ -18,4 +18,7 @@ export const env = {
   seedOnStartup: process.env.SEED_ON_STARTUP !== 'false',
   passwordResetBaseUrl: process.env.PASSWORD_RESET_BASE_URL ?? 'http://localhost:3000',
   nodeEnv: process.env.NODE_ENV ?? 'development',
+  swaggerEnabled:
+    process.env.SWAGGER_ENABLED === 'true' ||
+    (process.env.SWAGGER_ENABLED !== 'false' && (process.env.NODE_ENV ?? 'development') !== 'production'),
 };

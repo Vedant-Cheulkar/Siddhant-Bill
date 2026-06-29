@@ -12,7 +12,7 @@ const badge = cva(
         cancelled: 'bg-red-50    text-red-600    ring-1 ring-inset ring-red-200/60',
         active:    'bg-green-50  text-green-700  ring-1 ring-inset ring-green-200/60',
         inactive:  'bg-zinc-100  text-zinc-500   ring-1 ring-inset ring-zinc-200/60',
-        accent:    'bg-accent-bg text-accent-text ring-1 ring-inset ring-indigo-200/60',
+        accent:    'bg-accent-bg text-accent-text ring-1 ring-inset ring-border',
       },
     },
     defaultVariants: { variant: 'draft' },

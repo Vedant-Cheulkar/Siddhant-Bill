@@ -13,7 +13,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
     <div
       className={cn(
         'flex items-center gap-2 w-full bg-bg border border-border rounded-lg px-3 py-1.5 transition-all',
-        'focus-within:border-border-strong focus-within:bg-surface',
+        'focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:bg-surface',
         className
       )}
     >

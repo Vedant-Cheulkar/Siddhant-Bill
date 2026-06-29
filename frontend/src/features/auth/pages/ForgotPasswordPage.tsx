@@ -10,6 +10,7 @@ import { Button } from '@shared/components/ui/Button';
 import { Spinner } from '@shared/components/ui/Spinner';
 import { forgotPassword } from '../api/password.api';
 import { getApiErrorMessage } from '@shared/utils/apiError';
+import { AppLogo } from '@shared/components/brand/AppLogo';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -37,6 +38,7 @@ export function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-surface border border-border rounded-2xl p-4 sm:p-8 shadow-sm space-y-6">
+        <AppLogo className="h-9 mb-2" />
         <div>
           <h1 className="text-xl font-semibold text-fg">Forgot password</h1>
           <p className="text-sm text-muted mt-1">

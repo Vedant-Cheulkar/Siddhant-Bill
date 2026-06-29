@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, ChevronRight, FileText, Menu, Search } from 'lucide-react';
+import { ChevronRight, FileText, Menu, Search } from 'lucide-react';
 import { Button } from '@shared/components/ui/Button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@features/auth/store/authStore';
@@ -44,12 +44,12 @@ export function Header({ onOpenSearch, onOpenMenu }: HeaderProps) {
   const pageLabel = getPageLabel(location.pathname);
 
   return (
-    <header className="h-14 flex items-center justify-between gap-3 px-4 lg:px-6 bg-bg border-b border-border shrink-0 safe-top">
+    <header className="h-14 flex items-center justify-between gap-3 px-4 lg:px-6 bg-surface border-b border-border shadow-[0_1px_3px_0_rgba(0,0,0,.04)] shrink-0 safe-top">
       <div className="flex items-center gap-2 min-w-0">
         <button
           type="button"
           onClick={onOpenMenu}
-          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-surface text-fg hover:bg-bg transition-colors shrink-0"
+          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-bg text-muted hover:bg-bg-subtle hover:text-fg transition-colors shrink-0"
           aria-label="Open navigation menu"
         >
           <Menu size={18} />
@@ -65,7 +65,7 @@ export function Header({ onOpenSearch, onOpenMenu }: HeaderProps) {
                 {companyName}
               </button>
             </li>
-            <li aria-hidden="true"><ChevronRight size={12} className="text-muted shrink-0" /></li>
+            <li aria-hidden="true"><ChevronRight size={12} className="text-border-strong shrink-0" /></li>
             <li className="min-w-0"><span className="font-semibold text-fg truncate">{pageLabel}</span></li>
           </ol>
         </nav>
@@ -74,12 +74,13 @@ export function Header({ onOpenSearch, onOpenMenu }: HeaderProps) {
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onOpenSearch}
-          className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-lg text-xs text-muted hover:border-border-strong hover:text-fg transition-all"
+          className="flex items-center justify-center w-9 h-9 sm:w-auto sm:h-auto sm:gap-2 sm:px-3 sm:py-1.5 bg-bg border border-border rounded-lg text-xs text-muted hover:border-border-strong hover:text-fg transition-all"
           aria-label="Open search"
         >
-          <Search size={12} />
-          <span>Search</span>
-          <span className="ml-1 font-mono bg-bg border border-border rounded px-1 text-2xs">⌘K</span>
+          <Search size={14} className="sm:hidden" />
+          <Search size={12} className="hidden sm:block" />
+          <span className="hidden sm:inline">Search</span>
+          <kbd className="hidden lg:inline-flex ml-1 items-center font-mono bg-surface border border-border rounded px-1 py-0.5 text-2xs">⌘K</kbd>
         </button>
 
         <Button size="sm" onClick={() => navigate('/invoices/new')} className="hidden sm:inline-flex">
@@ -89,20 +90,8 @@ export function Header({ onOpenSearch, onOpenMenu }: HeaderProps) {
         </Button>
 
         <button
-          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs font-medium hover:bg-bg transition-all"
-          aria-label="Select language"
-        >
-          EN <ChevronDown size={12} />
-        </button>
-
-        <button className="relative w-8 h-8 flex items-center justify-center bg-surface border border-border rounded-lg hover:bg-bg transition-all" aria-label="Notifications">
-          <Bell size={14} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-accent rounded-full ring-1 ring-bg" />
-        </button>
-
-        <button
           onClick={() => navigate('/settings')}
-          className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-xs font-bold text-white shadow-sm hover:bg-accent-hover transition-colors select-none"
+          className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white shadow-sm hover:shadow-md hover:scale-105 transition-all select-none ring-2 ring-white"
           aria-label="Account settings"
         >
           {initials}

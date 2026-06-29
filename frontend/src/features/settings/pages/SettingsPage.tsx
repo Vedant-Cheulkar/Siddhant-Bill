@@ -176,7 +176,7 @@ export function SettingsPage() {
               className={cn(
                 'flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors',
                 activeTab === tab.value
-                  ? 'border-accent text-accent'
+                  ? 'border-indigo-500 text-indigo-600 font-semibold'
                   : 'border-transparent text-muted hover:text-fg'
               )}
             >
@@ -309,7 +309,7 @@ export function SettingsPage() {
             <CardContent>
               <textarea
                 rows={4}
-                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none transition-colors"
+                className="w-full px-3 py-2.5 bg-surface border border-border rounded-xl text-sm text-fg placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 resize-none transition-colors hover:border-border-strong"
                 placeholder="Enter default payment terms that will appear on all invoices…"
                 {...invoiceForm.register('terms')}
               />
@@ -344,8 +344,8 @@ export function SettingsPage() {
                       className={cn(
                         'px-4 py-2 rounded-xl text-sm font-medium border transition-colors',
                         taxForm.watch('defaultRate') === rate
-                          ? 'bg-accent text-white border-accent'
-                          : 'bg-surface text-fg border-border hover:bg-stone-50'
+                          ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white border-indigo-500 shadow-sm'
+                          : 'bg-surface text-fg border-border hover:bg-bg hover:border-border-strong'
                       )}
                     >
                       {rate}%
@@ -356,7 +356,7 @@ export function SettingsPage() {
                   <p className="text-xs text-red-500 mt-1">{taxForm.formState.errors.defaultRate.message}</p>
                 )}
               </div>
-              <div className="p-3 bg-stone-50 rounded-xl border border-border text-xs text-muted">
+              <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-muted">
                 <p className="font-medium text-fg mb-0.5">GST Breakdown Logic</p>
                 <p>CGST + SGST applies when customer's state code matches your company state code (intra-state). IGST applies for inter-state transactions.</p>
               </div>

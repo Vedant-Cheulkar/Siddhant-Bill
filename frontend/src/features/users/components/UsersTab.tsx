@@ -47,7 +47,7 @@ function RoleBadge({ role }: { role: UserRole }) {
       className={cn(
         'inline-flex px-2 py-0.5 rounded-full text-xs font-medium border',
         role === 'ADMIN'
-          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+          ? 'bg-accent-bg text-accent-text border-border'
           : 'bg-stone-50 text-stone-700 border-stone-200',
       )}
     >

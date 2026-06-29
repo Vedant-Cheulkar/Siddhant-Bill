@@ -1,20 +1,25 @@
 import { defineConfig } from 'vitest/config'
+import { loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const useMockApi = env.VITE_MOCK_API === 'true'
+
+  return {
   plugins: [
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.svg', 'icons/*.png'],
+      includeAssets: ['logo.png', 'logo-mark.png', 'icons/*.png'],
       manifest: {
         name: 'Siddhant Logistics — Billing Suite',
         short_name: 'Siddhant Bill',
         description: 'Indian GST billing for logistics',
-        theme_color: '#4f46e5',
-        background_color: '#edecea',
+        theme_color: '#1d2440',
+        background_color: '#f5f5f5',
         display: 'standalone',
         scope: '/',
         start_url: '/',
@@ -57,12 +62,14 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-    },
+    proxy: useMockApi
+      ? undefined
+      : {
+          '/api': {
+            target: 'http://localhost:8080',
+            changeOrigin: true,
+          },
+        },
   },
   test: {
     globals: true,
@@ -77,4 +84,5 @@ export default defineConfig({
       exclude: ['src/test/**', 'src/main.tsx', '**/*.d.ts'],
     },
   },
+  }
 })

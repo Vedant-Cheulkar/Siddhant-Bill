@@ -32,7 +32,7 @@ export function TabBar<T extends string | number>({
               className={cn(
                 'px-3 pb-3 text-sm font-medium border-b-2 -mb-px transition-all whitespace-nowrap',
                 isActive
-                  ? 'border-accent text-accent'
+                  ? 'border-indigo-500 text-indigo-600 font-semibold'
                   : 'border-transparent text-muted hover:text-fg hover:border-border-strong'
               )}
             >
@@ -42,7 +42,7 @@ export function TabBar<T extends string | number>({
                   className={cn(
                     'ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-semibold',
                     isActive
-                      ? 'bg-accent-bg text-accent-text'
+                      ? 'bg-indigo-100 text-indigo-700'
                       : 'bg-bg text-muted'
                   )}
                 >

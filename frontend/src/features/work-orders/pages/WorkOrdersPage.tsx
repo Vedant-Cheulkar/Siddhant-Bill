@@ -32,7 +32,7 @@ const STATUS_VARIANT: Record<WorkOrderStatus, string> = {
   OPEN:        'bg-blue-50 text-blue-700 border-blue-200',
   IN_PROGRESS: 'bg-amber-50 text-amber-700 border-amber-200',
   COMPLETED:   'bg-emerald-50 text-emerald-700 border-emerald-200',
-  INVOICED:    'bg-indigo-50 text-indigo-700 border-indigo-200',
+  INVOICED:    'bg-accent-bg text-accent-text border-border',
   CANCELLED:   'bg-red-50 text-red-700 border-red-200',
 };
 
@@ -122,7 +122,7 @@ export function WorkOrdersPage() {
         <div className="relative flex justify-end" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:bg-stone-100 hover:text-fg transition-colors"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:bg-bg-subtle hover:text-fg transition-colors"
             aria-label="Actions"
           >
             <MoreHorizontal size={14} />
@@ -133,7 +133,7 @@ export function WorkOrdersPage() {
               <div className="absolute right-0 top-8 z-20 w-44 bg-surface border border-border rounded-xl shadow-lg overflow-hidden py-1">
                 <button
                   onClick={() => { navigate(`/work-orders/${r.id}`); setOpenMenuId(null); }}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-fg hover:bg-stone-50 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-fg hover:bg-bg transition-colors"
                 >
                   <Pencil size={12} /> Edit
                 </button>

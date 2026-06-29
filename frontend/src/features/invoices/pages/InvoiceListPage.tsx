@@ -92,7 +92,7 @@ export function InvoiceListPage() {
         <div className="relative flex justify-end" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:bg-stone-100 hover:text-fg transition-colors"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:bg-bg-subtle hover:text-fg transition-colors"
             aria-label="Actions"
           >
             <MoreHorizontal size={14} />
@@ -103,7 +103,7 @@ export function InvoiceListPage() {
               <div className="absolute right-0 top-8 z-20 w-36 bg-surface border border-border rounded-xl shadow-lg overflow-hidden py-1">
                 <button
                   onClick={() => { navigate(`/invoices/${r.id}`); setOpenMenuId(null); }}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-fg hover:bg-stone-50 transition-colors"
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-fg hover:bg-bg transition-colors"
                 >
                   <Pencil size={12} /> Edit
                 </button>

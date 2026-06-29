@@ -5,6 +5,7 @@ import { formatCurrency } from '@shared/utils/format';
 
 export interface LineItemValues {
   productId?: string;
+  hsnSac?: string;
   description: string;
   quantity: number;
   unitPrice: number;
@@ -142,6 +143,12 @@ export function LineItemEditor({
                   {rowError?.description && (
                     <p className="text-2xs text-red-500">{rowError.description.message}</p>
                   )}
+                  <input
+                    {...register(`items.${idx}.hsnSac`)}
+                    placeholder="HSN/SAC code"
+                    disabled={isReadOnly}
+                    className="w-full text-2xs outline-none bg-transparent text-muted placeholder:text-muted/50 disabled:opacity-70"
+                  />
                 </div>
 
                 <input
@@ -228,6 +235,12 @@ export function LineItemEditor({
                   {rowError?.description && (
                     <p className="text-2xs text-red-500">{rowError.description.message}</p>
                   )}
+                  <input
+                    {...register(`items.${idx}.hsnSac`)}
+                    placeholder="HSN/SAC code"
+                    disabled={isReadOnly}
+                    className="w-full text-xs outline-none bg-surface border border-border rounded-lg px-3 py-1.5 text-muted placeholder:text-muted/50 disabled:opacity-70"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
