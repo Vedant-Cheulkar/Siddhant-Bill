@@ -31,7 +31,7 @@ export function setupSwagger(app: Express) {
     res.json(openApiSpec);
   });
 
-  app.get('/api/docs', (_req, res) => {
+  app.get(['/api/docs', '/api/docs/'], (_req, res) => {
     res.type('html').send(SWAGGER_HTML);
   });
 }
